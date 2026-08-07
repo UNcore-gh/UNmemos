@@ -4,6 +4,8 @@ A faithful [Memos](https://github.com/usememos/memos)-inspired flash-capture plu
 
 > Part of the **UN series** by UNcore.
 
+![UNmemos Screenshot](images/screenshot.png)
+
 ## Features
 
 - **Flash capture** — a composer at the top of the view; `Cmd/Ctrl+Shift+M` opens the view, `Cmd/Ctrl+Shift+N` focuses the composer. Drafts are auto-preserved.
