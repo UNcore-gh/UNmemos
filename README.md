@@ -31,7 +31,7 @@ Search for **UNmemos** in Obsidian → **Settings → Community plugins → Brow
 
 ### Manual
 
-Copy `main.js`, `manifest.json` and `styles.css` from the [latest release](../../releases) into `<vault>/.obsidian/plugins/unmemos/`, then enable the plugin.
+Copy `main.js`, `manifest.json` and `styles.css` from the [latest release](../../releases) into `<vault>/.obsidian/plugins/UNmemos/`, then enable the plugin.
 
 ## Documentation
 
