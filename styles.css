@@ -1,0 +1,4136 @@
+/* ═══════════════════════════════════════════════════════════
+   Obsidian Memos — Faithful Memos-style UI
+   ═══════════════════════════════════════════════════════════ */
+
+.memos-view {
+  /* ── Memos-inspired tokens ── */
+  /* Accent reads the --memos-accent* vars published on <body> by the plugin
+     (src/color.ts), so the theme-color setting re-themes every view live. It
+     does NOT follow Obsidian's --interactive-accent, and every use sits under
+     .memos-view, so note content and the rest of the app are untouched. The
+     green values are the fallback when no accent has been set. */
+  --memos-primary: var(--memos-accent, #07c160);
+  --memos-primary-hover: var(--memos-accent-hover, #06ad56);
+  --memos-primary-fg: #ffffff;
+  --memos-primary-rgb: var(--memos-accent-rgb, 7, 193, 96);
+
+  --memos-bg: var(--background-primary, #ffffff);
+  --memos-bg-soft: var(--background-secondary, #f8f9fa);
+  --memos-bg-muted: var(--background-secondary-alt, #f1f3f4);
+
+  /* Stage & rail: the feed sits on a pure white stage; the sidebar rail
+     keeps the faintest cool-gray wash so the two planes read apart and
+     the white cards on the white stage never melt into it. */
+  --memos-feed-bg: #ffffff;
+  --memos-rail-bg: #f7f8fa;
+
+  --memos-text: var(--text-normal, #1f2937);
+  --memos-text-muted: var(--text-muted, #6b7280);
+  --memos-text-faint: var(--text-faint, #9ca3af);
+
+  --memos-border: var(--background-modifier-border, #e5e7eb);
+  --memos-border-hover: var(--background-modifier-border-hover, #d1d5db);
+  --memos-hover: var(--background-modifier-hover, rgba(0,0,0,0.04));
+
+  --memos-card: var(--memos-feed-bg);
+  /* Two-layer shadows: a tight contact line plus a soft ambient lift —
+     this is what keeps white cards legible on the white stage. */
+  --memos-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04);
+  --memos-card-shadow-hover: 0 6px 18px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.05);
+
+  --memos-radius-sm: 6px;
+  --memos-radius: 10px;
+  --memos-radius-lg: 14px;
+
+  --memos-danger: var(--text-error, #ef4444);
+
+  /* Ref-footer accent colors. Outlinks ("引用") get their own blue — deliberately
+     NOT the theme's green primary — and inlinks ("被引用") a teal, so the two
+     directions read apart at a glance and neither is mistaken for the primary. */
+  --memos-outlink: #3b82f6;
+  --memos-outlink-rgb: 59, 130, 246;
+  --memos-inlink-rgb: 13, 148, 136;
+
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  background: var(--memos-feed-bg);
+  overflow: hidden;
+  font-family: var(--font-text);
+  color: var(--memos-text);
+  position: relative;
+}
+
+/* Dark themes: never force the white stage — fall back to the theme's own
+   surfaces so the plugin stays comfortable after dark. */
+.theme-dark .memos-view {
+  --memos-feed-bg: var(--background-primary);
+  --memos-rail-bg: var(--background-secondary);
+}
+
+/* ── Icon sizing fallback ──────────────────────────────────── */
+/* These rules override Obsidian's core SVG rules */
+.memos-nav-item svg,
+.memos-header-btn svg,
+.memos-search-icon svg,
+.memos-filter-btn svg,
+.memos-card-menu svg,
+.memos-calendar-nav svg,
+.memos-sidebar-hide-btn svg,
+.memos-sidebar-float-btn svg {
+  width: var(--icon-size, 14px) !important;
+  height: var(--icon-size, 14px) !important;
+  min-width: var(--icon-size, 14px) !important;
+  min-height: var(--icon-size, 14px) !important;
+  flex-shrink: 0 !important;
+}
+
+/* Explicit size rules for calendar nav buttons */
+.memos-calendar-nav {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.memos-calendar-nav svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+}
+
+/* Explicit size rules for card menu buttons */
+.memos-card-menu {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.memos-card-menu svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+}
+
+/* Card header layout */
+.memos-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  min-height: 28px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Calendar header layout */
+.memos-calendar-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  flex-shrink: 0 !important;
+}
+
+/* ── Header actions (nav + sidebar controls) ───────────────── */
+
+.memos-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.memos-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--memos-bg-muted);
+  border-radius: var(--memos-radius);
+}
+
+.memos-nav-item {
+  width: 30px;
+  height: 30px;
+  --icon-size: 17px;
+  border-radius: var(--memos-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  /* Only transition color/background — `transition: all` also animates
+     box-shadow & layout, which makes the whole sidebar jitter on iPad
+     when the active state toggles. */
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.memos-nav-item:hover {
+  color: var(--memos-text);
+}
+
+.memos-nav-item.active {
+  background: var(--memos-primary);
+  color: var(--memos-primary-fg);
+}
+
+.memos-nav-item.active:hover {
+  background: var(--memos-primary-hover);
+}
+
+.memos-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.memos-header-btn {
+  width: 30px;
+  height: 30px;
+  --icon-size: 17px;
+  border-radius: var(--memos-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.memos-header-btn:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+/* ── Main Content ──────────────────────────────────────────── */
+
+.memos-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--memos-feed-bg);
+}
+
+.memos-feed {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 20px 24px 24px;
+  gap: 16px;
+}
+
+.memos-feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.memos-feed-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--memos-text);
+}
+
+.memos-active-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+/* One chip per active constraint (tag / structured filter / date), each
+   with its own ✕ so they clear independently. */
+.memos-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(var(--memos-primary-rgb), 0.1);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--memos-primary);
+  max-width: 100%;
+}
+
+.memos-filter-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.memos-filter-chip-icon {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.memos-filter-chip-icon svg {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+}
+
+.memos-clear-filter {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.memos-clear-filter:hover {
+  opacity: 1;
+}
+
+/* ── Right Sidebar ─────────────────────────────────────────── */
+
+.memos-sidebar {
+  width: 260px; /* overridden inline from settings / drag */
+  min-width: 200px;
+  max-width: 480px;
+  background: var(--memos-rail-bg);
+  border-left: 1px solid var(--memos-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Reserve the scrollbar gutter permanently — switching base frames
+     changes content height, and an appearing/disappearing scrollbar
+     used to shift the whole sidebar's content width (visible jitter). */
+  scrollbar-gutter: stable;
+  padding: 20px 16px 24px;
+  gap: 16px;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+/* When the sidebar is docked to the left, the divider is on its right edge */
+.memos-sidebar-left {
+  border-left: none;
+  border-right: 1px solid var(--memos-border);
+}
+
+.memos-sidebar-hidden {
+  display: none;
+}
+
+/* ── Sidebar navigation (Memos / Archived) ───────────────── */
+.memos-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memos-sidebar-nav .memos-nav-item {
+  width: auto;
+  height: 36px;
+  padding: 0 10px;
+  gap: 10px;
+  justify-content: flex-start;
+  border-radius: var(--memos-radius-sm);
+  background: transparent;
+  color: var(--memos-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  /* Explicitly transition only color/background — never box-shadow or
+     layout, so toggling .active does not shake the sidebar on iPad. */
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.memos-sidebar-nav .memos-nav-item:hover {
+  background: rgba(var(--memos-primary-rgb), 0.08);
+  color: var(--memos-text);
+}
+
+.memos-sidebar-nav .memos-nav-item.active {
+  background: var(--memos-primary);
+  color: var(--memos-primary-fg);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(var(--memos-primary-rgb), 0.4);
+}
+
+.memos-sidebar-nav .memos-nav-item.active:hover {
+  background: var(--memos-primary-hover);
+}
+
+.memos-sidebar-nav .memos-nav-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  --icon-size: 16px;
+}
+
+.memos-sidebar-nav .memos-nav-item-label {
+  line-height: 1;
+}
+
+/* ── Sidebar nav item counts (Memos / Archived / 星标) ── */
+.memos-sidebar-nav .memos-nav-item .memos-nav-item-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-normal);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.memos-sidebar-nav .memos-nav-item:hover .memos-nav-item-count {
+  opacity: 1;
+}
+
+/* ── Drag resizer (between main feed and sidebar) ─────────── */
+
+.memos-sidebar-resizer {
+  width: 5px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  z-index: 5;
+  transition: background 0.15s ease;
+}
+
+.memos-sidebar-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 44px;
+  border-radius: 3px;
+  background: var(--memos-border-hover);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.memos-sidebar-resizer:hover,
+.memos-sidebar-resizer.active {
+  background: rgba(var(--memos-primary-rgb), 0.08);
+}
+
+.memos-sidebar-resizer:hover::after,
+.memos-sidebar-resizer.active::after {
+  opacity: 1;
+}
+
+.memos-resizer-hidden {
+  display: none;
+}
+
+/* ── Sidebar top bar (in-sidebar hide button) ─────────────── */
+
+.memos-sidebar-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* right sidebar → button in top-right corner */
+  flex-shrink: 0;
+  margin: -8px -4px 0;
+}
+
+/* Left-docked sidebar → button sits in the top-left corner instead */
+.memos-sidebar-left-align .memos-sidebar-topbar {
+  justify-content: flex-start;
+}
+
+.memos-sidebar-hide-btn {
+  width: 28px;
+  height: 28px;
+  --icon-size: 16px;
+  border-radius: var(--memos-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.memos-sidebar-hide-btn:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+/* ── Floating restore button (shown when sidebar is hidden) ── */
+
+.memos-sidebar-float-btn {
+  position: absolute;
+  z-index: 20;
+  width: 32px;
+  height: 32px;
+  --icon-size: 17px;
+  border-radius: var(--memos-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--memos-text-muted);
+  background: var(--memos-bg);
+  border: 1px solid var(--memos-border);
+  box-shadow: var(--memos-card-shadow);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.memos-sidebar-float-btn:hover {
+  color: var(--memos-primary);
+  border-color: var(--memos-border-hover);
+  box-shadow: var(--memos-card-shadow-hover);
+}
+
+.memos-sidebar-float-hidden {
+  display: none;
+}
+
+/* While dragging: global col-resize cursor + no text selection */
+body.memos-is-resizing,
+body.memos-is-resizing * {
+  cursor: col-resize !important;
+}
+
+body.memos-is-resizing {
+  user-select: none !important;
+}
+
+.memos-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.memos-sidebar::-webkit-scrollbar-thumb {
+  background: var(--memos-border);
+  border-radius: 4px;
+}
+
+/* The search row is ONE segmented control: a single bordered shell holds
+   the input (left, flexible) and the funnel button (right, square). One
+   outline, one radius, one focus ring — the funnel reads as part of the
+   search box, not a stray sibling. Radius matches the funnel chip's 4px
+   so the whole control reads consistently square. */
+.memos-search {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--memos-border);
+  border-radius: 4px;
+  background: transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.memos-search:focus-within {
+  border-color: rgba(var(--memos-primary-rgb), 0.55);
+  box-shadow: 0 0 0 3px rgba(var(--memos-primary-rgb), 0.13);
+}
+
+/* Right segment holder — keeps the funnel chip vertically centred inside
+   the shell with breathing room all round (no shared edge, no seam). */
+.memos-search-actions {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+/* Funnel = a floating chip INSIDE the search shell rather than an
+   attached segment — the junction with the input is pure whitespace,
+   which reads far smoother than a hairline divider. Hover tints the
+   chip; press gives a tiny scale dip.
+
+   The !important trio is load-bearing on DESKTOP: Obsidian core styles
+   every <button> through higher-specificity selectors (button:not(
+   .clickable-icon)… paints background-color + an inset box-shadow ring).
+   Without !important those win over this plain class, and the chip sits
+   on a gray system-button slab with system corners — which is exactly
+   why earlier border-radius tweaks "had no effect" on desktop. */
+.memos-filter-btn {
+  --icon-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 34px;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  border-radius: 4px;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.1s ease;
+}
+.memos-filter-btn:hover {
+  background: var(--memos-hover) !important;
+  color: var(--memos-primary);
+}
+.memos-filter-btn:active {
+  transform: scale(0.9);
+}
+/* Lit while the panel is open OR a structured filter is applied. */
+.memos-filter-btn.active {
+  background: rgba(var(--memos-primary-rgb), 0.14) !important;
+  color: var(--memos-primary);
+}
+/* Deterministic glyph size. The shared reset at the top of this file
+   sizes icons via --icon-size, but Obsidian core also sizes .svg-icon
+   from its own machinery — this standalone override (higher specificity,
+   every dimension, !important) guarantees the funnel reads smaller than
+   the magnifier no matter what core injects. */
+.memos-filter-btn svg.svg-icon {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+}
+
+/* Input is the shell's left segment — borderless inside the shared
+   outline; the shell's :focus-within paints the ring instead.
+   !important on border/background/box-shadow: Obsidian core styles
+   input[type='text'] at higher specificity than this class, which would
+   otherwise repaint a stock form field (own border + gray fill) inside
+   the shell on desktop. */
+.memos-search-input {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 8px 0 38px;
+  border: none !important;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--memos-text);
+  font-size: 14px;
+  font-family: var(--font-text);
+  outline: none;
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+
+/* Magnifier — a child of the input, pinned to its left edge. pointer-
+   events:none keeps the caret and text selection free; top:50% tracks
+   any input height (40px desktop, 44px mobile). */
+.memos-search-icon {
+  --icon-size: 16px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--memos-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The old save-current-keyword bookmark button is gone — the funnel
+   button absorbed its job (see toggleFilterPanel in view.ts). */
+
+/* Saved filters pinned between nav and Tags, rendered as tag-style rows
+   (same .memos-lite-tag-item markup as the Tags section). */
+.memos-filter-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* The whole Filters section disappears when there are no saved entries.
+   Class-based (not inline style) so the long-lived chips container and
+   its delegated sortable keep working untouched. */
+.memos-section-hidden {
+  display: none;
+}
+
+/* Filter rows reuse the Tags-section row styling (.memos-lite-tag-item
+   + .memos-lite-tag-name/-count + .memos-lite-tag-more) so they look
+   exactly like the tag rows below. The .memos-filter-item class carries
+   no styling of its own — it's the JS hook for the delegated sortable
+   and active-state bookkeeping. */
+
+/* ── Long-press drag-to-reorder (pinned tags + filter rows) ─────── */
+/* No drag handle icon. A row is picked up by holding it still ~320ms:
+   it "lifts" (is-armed), a light haptic fires, and it can then be
+   dragged. A quick tap still selects the row; a swipe still scrolls. */
+.is-mobile .memos-lite-tag-item {
+  /* Keep rows comfortably tappable on touch. */
+  min-height: 42px;
+}
+/* Picked up: the hold completed — the row lifts and reads as draggable. */
+.memos-lite-tag-item.is-armed {
+  background: rgba(var(--memos-primary-rgb), 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+  transform: scale(1.02);
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+/* Actively being dragged — floats a touch higher than the armed lift. */
+.memos-lite-tag-item.is-dragging {
+  position: relative;
+  z-index: 5;
+  opacity: 0.92;
+  background: rgba(var(--memos-primary-rgb), 0.14);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  transform: scale(1.03);
+}
+body.memos-row-dragging {
+  cursor: grabbing !important;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ── Filter panel (popover below the search box) ─────── */
+/* Desktop: body-mounted fixed popover anchored under the sidebar search
+   box, floating over the feed. Body-mounted (the sidebar clips internal
+   popovers) — OUTSIDE .memos-view, so the --memos-* tokens MUST be
+   redefined here (same precedent as the mention popup / card dropdown). */
+.memos-filter-panel {
+  --memos-primary: var(--memos-accent, #07c160);
+  --memos-primary-hover: var(--memos-accent-hover, #06ad56);
+  --memos-primary-fg: #ffffff;
+  --memos-primary-rgb: var(--memos-accent-rgb, 7, 193, 96);
+
+  --memos-bg: var(--background-primary, #ffffff);
+  --memos-bg-soft: var(--background-secondary, #f8f9fa);
+  --memos-bg-muted: var(--background-secondary-alt, #f1f3f4);
+
+  --memos-text: var(--text-normal, #1f2937);
+  --memos-text-muted: var(--text-muted, #6b7280);
+  --memos-text-faint: var(--text-faint, #9ca3af);
+
+  --memos-border: var(--background-modifier-border, #e5e7eb);
+  --memos-border-hover: var(--background-modifier-border-hover, #d1d5db);
+  --memos-hover: var(--background-modifier-hover, rgba(0,0,0,0.04));
+
+  --memos-radius-sm: 6px;
+  --memos-radius: 10px;
+  --memos-radius-lg: 14px;
+
+  --memos-danger: var(--text-error, #ef4444);
+
+  position: fixed;
+  z-index: 1040; /* above card dropdown (var(--layer-menu,1000)), below mention popup (1050); the two never coexist */
+  width: min(380px, 92vw);
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: 8px 10px;
+  background: var(--memos-bg);
+  border: 1px solid var(--memos-border);
+  border-radius: var(--memos-radius);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+  color: var(--memos-text);
+  font-size: 12px;
+}
+
+/* Phone: the panel is a body-mounted fixed overlay (see filter-panel.ts
+   reposition) that breaks out of the narrow drawer — no inline variant. */
+
+.memos-fp-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.memos-fp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: var(--memos-radius-sm);
+  background: rgba(var(--memos-primary-rgb), 0.1);
+  color: var(--memos-primary);
+}
+.memos-fp-icon svg {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+  flex-shrink: 0 !important;
+}
+.memos-fp-title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--memos-text);
+}
+.memos-fp-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--memos-radius-sm);
+  background: transparent;
+  color: var(--memos-text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.memos-fp-close:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+.memos-filter-panel .memos-fb-section {
+  margin-bottom: 8px;
+}
+
+/* Name field inside the footer row — stretches to fill the leftover
+   space before the 保存 / 取消 / 检索 buttons. Obsidian's default input
+   is chunkier than the panel's other controls, so it's brought down to
+   the shared 26px row height. */
+.memos-fb-name {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Conditions area: positioned so the add-type menu can anchor to it. */
+.memos-fb-cond {
+  position: relative;
+}
+
+/* Global combinator — the prominent dark pill-dropdown at the top of the
+   conditions area (满足以下全部条件 ⇅). */
+.memos-fb-mode-wrap {
+  margin-bottom: 6px;
+}
+.memos-fb-mode-wrap select {
+  height: 26px;
+  padding: 0 24px 0 8px;
+  border: 1px solid var(--memos-border);
+  border-radius: 6px;
+  background: var(--memos-bg-soft);
+  color: var(--memos-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.memos-fb-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+/* One condition = [field][operator][value] on a single line, each box
+   independently bordered like the reference builder. Delete sits over the
+   value's right edge and fades in on hover. */
+.memos-fb-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.memos-fb-kind,
+.memos-fb-op {
+  flex-shrink: 0;
+}
+.memos-fb-kind select,
+.memos-fb-op select {
+  height: 26px;
+  padding: 0 22px 0 8px;
+  border: 1px solid var(--memos-border);
+  border-radius: 6px;
+  background: var(--memos-bg-soft);
+  color: var(--memos-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.memos-fb-value {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.memos-fb-value > input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 26px;
+  padding-right: 24px;
+  font-size: 12px;
+}
+/* Time condition control — a select-like trigger button; the popup it
+   opens (shared .memos-fb-pop) carries two date bars on top plus the
+   preset list below. The right edge reserves TWO fixed slots: the row's
+   delete × (right: 6px, revealed on hover) and this control's own
+   chevron (right: 26px), so the glyphs never overlap. */
+.memos-fb-time {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 44px 0 8px;
+  border: 1px solid var(--memos-border);
+  border-radius: 6px;
+  background: var(--memos-bg-soft);
+  color: var(--memos-text);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.memos-fb-time:hover {
+  border-color: var(--memos-primary);
+}
+/* Label area mirrors the popup's two date bars: in custom mode it splits
+   into 从 A │ 至 B segments (each clickable → focuses its own bar). */
+.memos-fb-time-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.memos-fb-time-seg {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.memos-fb-time-seg-b {
+  border-left: 1px solid var(--memos-border);
+  padding-left: 6px;
+}
+.memos-fb-time-k {
+  margin-right: 3px;
+  font-size: 11px;
+  color: var(--memos-text-faint);
+}
+.memos-fb-time-chevron {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: var(--memos-text-faint);
+  pointer-events: none;
+}
+.memos-fb-time-chevron svg {
+  width: 13px;
+  height: 13px;
+}
+.memos-fb-date {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+}
+/* ── Shared body-mounted popovers (add-menu / suggestions / time) ──
+   Soft menu look: a padded 12px shell; option rows are inset rounded
+   pills that light up on hover / keyboard. Fixed-mounted on <body> so
+   sidebar overflow never clips them; the panel positions them via
+   inline left/top/width. */
+.memos-fb-pop {
+  /* The --memos-* tokens are scoped to .memos-view / .memos-filter-panel;
+     these popovers are body-mounted OUTSIDE both scopes, so without this
+     copy every var() would fail to resolve and the popover would render
+     fully TRANSPARENT. Same values as the panel (theme-aware). */
+  --memos-primary: var(--memos-accent, #07c160);
+  --memos-primary-rgb: var(--memos-accent-rgb, 7, 193, 96);
+  --memos-bg: var(--background-primary, #ffffff);
+  --memos-bg-soft: var(--background-secondary, #f8f9fa);
+  --memos-text: var(--text-normal, #1f2937);
+  --memos-text-faint: var(--text-faint, #9ca3af);
+  --memos-border: var(--background-modifier-border, #e5e7eb);
+  --memos-hover: var(--background-modifier-hover, rgba(0,0,0,0.04));
+  position: fixed;
+  z-index: 1060;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  max-width: 280px;
+  padding: 5px;
+  border: 1px solid var(--memos-border);
+  border-radius: 12px;
+  /* Keeps the scrolled list corners inside the shell's curve. */
+  overflow: hidden;
+  background: var(--memos-bg);
+  /* Layered shadow: tight contact line + soft ambient drop. */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 10px 28px rgba(0, 0, 0, 0.18);
+  transform-origin: top center;
+  animation: memos-pop-in 0.14s ease-out;
+}
+@keyframes memos-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .memos-fb-pop {
+    animation: none;
+  }
+}
+.memos-fb-pop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  max-height: 234px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--memos-border) transparent;
+}
+.memos-fb-pop-list::-webkit-scrollbar {
+  width: 8px;
+}
+.memos-fb-pop-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.memos-fb-pop-list::-webkit-scrollbar-thumb {
+  background: var(--memos-border);
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background-clip: content-box;
+}
+/* Option rows sit INSET from the shell edge and round their own corners —
+   hover / keyboard highlight reads as a soft pill, never a full-bleed bar
+   (margin/radius/box-shadow resets also cancel Obsidian's global button
+   styles that leak into any <button>). */
+.memos-fb-pop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 7px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--memos-text);
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.memos-fb-pop-item:hover {
+  background: var(--memos-hover);
+}
+.memos-fb-pop-item-active,
+.memos-fb-pop-item-active:hover {
+  background: var(--memos-primary);
+  color: #fff;
+}
+.memos-fb-pop-item-text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.memos-fb-pop-check {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.memos-fb-pop-check svg {
+  width: 12px;
+  height: 12px;
+}
+.memos-fb-pop-header {
+  padding: 5px 10px 3px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--memos-text-faint);
+}
+.memos-fb-pop-empty {
+  padding: 8px 10px;
+  font-size: 11.5px;
+  color: var(--memos-text-faint);
+}
+/* Search-box suggestions share the .memos-fb-pop surface above (opaque
+   background — the token copy is what keeps body-mounted popovers from
+   rendering transparent). The sidebar search row can exceed the 280px
+   max-width, so the dropdown is allowed to span the full row width. */
+.memos-search-suggest {
+  max-width: none;
+}
+/* Time popup: the two custom-range date bars (从 / 至) sit above the
+   preset list, separated by a hairline. */
+.memos-fb-pop-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 10px 8px;
+}
+.memos-fb-pop-date-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.memos-fb-pop-date-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--memos-text-faint);
+}
+.memos-fb-pop-date-bar .memos-fb-date {
+  font-size: 12px;
+}
+.memos-fb-pop-sep {
+  margin: 4px 6px 5px;
+  border: none;
+  border-top: 1px solid var(--memos-border);
+}
+/* Quiet delete — only the × glyph, revealed on row hover. */
+.memos-fb-del {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--memos-text-faint);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+.memos-fb-row:hover .memos-fb-del {
+  opacity: 0.7;
+}
+.memos-fb-del:hover {
+  opacity: 1;
+  background: var(--memos-hover);
+  color: var(--memos-danger);
+}
+.memos-fb-del svg {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+}
+
+/* Add control — text button + a chevron that opens the type menu,
+   styled as one dashed unit. */
+.memos-fb-add-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1px dashed var(--memos-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.memos-fb-add-wrap:hover {
+  border-color: var(--memos-primary);
+  background: rgba(var(--memos-primary-rgb), 0.05);
+}
+.memos-fb-add {
+  flex: 1;
+  padding: 4px 9px;
+  border: none;
+  background: transparent;
+  color: var(--memos-text-muted);
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.memos-fb-add-wrap:hover .memos-fb-add {
+  color: var(--memos-primary);
+}
+.memos-fb-add-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  padding: 0;
+  border: none;
+  border-left: 1px dashed var(--memos-border);
+  background: transparent;
+  cursor: pointer;
+}
+/* The condition-TYPE picker is a genuine native <select> — the same
+   control as the "满足以下全部条件" mode dropdown, so its popup is the
+   identical system-drawn menu. It fills the chevron cell and shows only
+   the glyph (the .memos-filter-panel select rule paints the chevron);
+   the placeholder option's empty text keeps the box otherwise blank. */
+.memos-fb-add-chevron select {
+  width: 100%;
+  height: 100%;
+  padding: 0 16px 0 2px;
+  border: none;
+  background-color: transparent;
+  color: var(--memos-text-faint);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.memos-fb-add-wrap:hover .memos-fb-add-chevron select {
+  color: var(--memos-primary);
+}
+
+/* The add-condition TYPE picker is a genuine native <select> (styled by
+   the .memos-filter-panel select rule above) — its popup is the same
+   system menu as the mode dropdown's. Only the suggestion and time
+   popovers use the custom .memos-fb-pop surface. */
+
+/* Live match count — quiet summary as the panel's LAST line. */
+.memos-fb-preview {
+  font-size: 11px;
+  color: var(--memos-text-faint);
+  margin-top: 8px;
+}
+
+/* Footer — name field and the three actions on ONE line:
+   [命名框][保存][取消][检索]. The input stretches, buttons hold their
+   width; 保存 greys out until the name field has text. */
+.memos-fp-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.memos-fp-footer button {
+  flex-shrink: 0;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+}
+.memos-fp-footer button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.is-mobile .memos-fb-row {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+/* Field and operator split the first row evenly and the value control
+   takes a full-width second row — none of the three dropdowns can ever
+   be squeezed down to a bare chevron. */
+.is-mobile .memos-fb-kind,
+.is-mobile .memos-fb-op {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.is-mobile .memos-fb-kind select,
+.is-mobile .memos-fb-op select {
+  width: 100%;
+  min-height: 36px;
+}
+.is-mobile .memos-fb-value {
+  flex-basis: 100%;
+  /* Second line under [field][operator][✕] — see the del rule below. */
+  order: 2;
+}
+.is-mobile .memos-fb-value > input,
+.is-mobile .memos-fb-date {
+  min-height: 36px;
+}
+.is-mobile .memos-fb-time {
+  min-height: 36px;
+}
+/* On phones the delete × is a static row member (never overlaid), so the
+   trigger's chevron can move back to its own right edge. */
+.is-mobile .memos-fb-time {
+  padding-right: 26px;
+}
+.is-mobile .memos-fb-time-chevron {
+  right: 7px;
+}
+/* Rows wrap onto two lines on phones ([field][operator] / [value]), so
+   the absolutely-positioned delete button floats over the value input's
+   top-right corner. Make it a regular member of the first line instead —
+   [field][operator][✕] — always visible since touch has no hover. */
+.is-mobile .memos-fb-del {
+  position: static;
+  transform: none;
+  order: 1;
+  width: 32px;
+  height: 36px;
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+.is-mobile .memos-fb-value > input {
+  padding-right: 8px;
+}
+.is-mobile .memos-fb-add,
+.is-mobile .memos-fb-add-chevron {
+  min-height: 36px;
+}
+.is-mobile .memos-fb-mode-wrap select {
+  width: 100%;
+  min-height: 36px;
+}
+/* iOS auto-zooms inputs under 16px on focus — keep the panel controls
+   at 16px so opening a field doesn't jump the layout. */
+.is-mobile .memos-filter-panel input,
+.is-mobile .memos-filter-panel select {
+  font-size: 16px;
+}
+
+/* Touch-sized footer: the name field takes a full-width first line,
+   保存 / 取消 / 检索 split the second line evenly. */
+.is-mobile .memos-fp-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.is-mobile .memos-fp-footer .memos-fb-name {
+  flex-basis: 100%;
+  min-height: 36px;
+}
+.is-mobile .memos-fp-footer button {
+  flex: 1;
+  min-height: 40px;
+  font-size: 14px;
+}
+/* Body-mounted popovers (suggestions / time / add-menu): touch-sized
+   items. They live OUTSIDE .memos-filter-panel, so the panel's 16px
+   iOS anti-zoom input rule doesn't reach their date bars — repeat it. */
+.is-mobile .memos-fb-pop-item {
+  min-height: 36px;
+  font-size: 13px;
+}
+.is-mobile .memos-fb-pop input {
+  font-size: 16px;
+}
+
+/* Every builder dropdown paints exactly one expand chevron of its own
+   (the bordered-box shorthand above wipes Obsidian's, so without this the
+   control shows no affordance at all — declared AFTER the per-box rules
+   so the longhands win over their `background` shorthand). */
+.memos-filter-panel select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999999' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px 12px;
+}
+
+.memos-search-input:focus {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Reuse heatmap/tag section styles in sidebar */
+.memos-lite-sidebar-section {
+  margin-bottom: 8px;
+}
+
+.memos-lite-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--memos-text-faint);
+  margin-bottom: 10px;
+}
+.memos-lite-sidebar-title .memos-lite-tag-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-normal);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.memos-lite-sidebar-title:hover .memos-lite-tag-count {
+  opacity: 1;
+}
+
+/* ── Editor ────────────────────────────────────────────────── */
+
+.memos-editor {
+  position: relative;
+  background: var(--memos-card);
+  border: 1px solid var(--memos-border);
+  border-radius: var(--memos-radius);
+  box-shadow: var(--memos-card-shadow);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Focused state — no glow, just a subtle border shift. */
+.memos-editor:has(.cm-focused) {
+  border-color: var(--memos-border-hover);
+  box-shadow: var(--memos-card-shadow);
+}
+
+.memos-editor-textarea {
+  width: 100%;
+  /* 82 + native padding 52 = 134，与 CM6 稳定高度一致；否则 textarea 阶段
+     比 CM6 高 12px，交换时表现为"从大到小"跳变。 */
+  min-height: 82px;
+  max-height: 280px;
+  padding: 8px 20px;
+  padding-bottom: 36px;
+  border: none;
+  background: transparent;
+  color: var(--memos-text);
+  font-family: var(--font-text);
+  font-size: 15px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+/* 兜底 textarea 绝对定位填满 native 的内容区（即 8/14/44/14 内边距框）。
+   native 盒子高度由它自己的 min-height:134 单独钉死，textarea 的任何
+   min-height/padding/字号都不再参与盒高——textarea 阶段与 CM6 阶段恒等，
+   交换零跳变（Bug A 的稳健根治，不依赖像素对齐估算）。
+   仅作用于顶部 composer（.memos-editor-native）；inline 编辑器保持文档流。 */
+.memos-editor:not(.memos-editor-is-expanded)
+  .memos-editor-native
+  .memos-editor-textarea {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  bottom: 44px;
+  left: 14px;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  resize: none;
+}
+
+/* Native editor wrapper — holds the reparented Obsidian CM6 editor.
+   Padding on OUR wrapper is the single source of truth for text-to-edge
+   spacing — it cannot be overridden by Obsidian or CM6 internal CSS. */
+.memos-editor-native {
+  /* min-height = CM6 稳定高度（内容 82 + padding 52 = 134）。textarea 阶段与
+     CM6 阶段都钉死在 134，交换时无高度跳变（Bug A「从大到小」根治）。
+     max-height = 280px：内容增长时 wrapper 自然长高（content-driven height），
+     到 280px 才停（约 7 行文字）。不需要 JS 检测溢出再展开——没有 160px cap 就没有溢出、
+     没有滚动条 flash、没有 JS 检测延迟。overflow: hidden 由 .cm-scroller
+    负责滚动，wrapper 不创建嵌套滚动容器。 */
+  min-height: 134px;
+  max-height: 280px;
+  overflow: hidden;
+  position: relative;
+  padding: 8px 14px 44px 14px;
+  box-sizing: border-box;
+}
+
+/* 隐藏 wrapper 自身滚动条，消除左右不对称 */
+.memos-editor-native::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Keep only height constraints — do NOT override font-size / line-height /
+   horizontal padding, so text renders exactly like a native note editor. */
+.memos-editor-native .markdown-source-view,
+.memos-editor-native .cm-editor {
+  min-height: 80px;
+}
+
+/* Keep CM6 content at the top. Clearance for the floating Send
+   button is on .memos-editor-native, not on .cm-scroller —
+   padding-bottom on the scroller was pushing the cursor downward.
+   Phone Obsidian adds `padding-top: var(--view-top-spacing-markdown)` to the
+   scroller (safe-area + floating header + 16px), which parks the content at
+   the bottom of the input box. We remove both paddings and keep the sizer
+   from being stretched to the full scroller height. */
+.memos-editor-native .markdown-source-view .cm-scroller,
+.memos-editor-native .cm-editor .cm-scroller,
+.memos-inline-editor-wrap .cm-editor .cm-scroller {
+  min-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  justify-content: flex-start !important;
+  align-content: flex-start !important;
+}
+/* Let the scroller fill the editor's min-height so taps anywhere in the
+   box land on CM6's own surface — no dead zone below the scroller where
+   iOS/Android would otherwise park the caret outside CM6's editable layer.
+   Hide the scroller's own scrollbar too — it would otherwise eat into the
+   right side of the content area and cause left/right asymmetry. */
+.memos-editor-native .cm-scroller,
+.memos-inline-editor-wrap .cm-scroller {
+  flex: 1 1 auto !important;
+  scrollbar-width: none; /* Firefox / standard */
+}
+.memos-editor-native .cm-scroller::-webkit-scrollbar,
+.memos-inline-editor-wrap .cm-scroller::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* fully remove from render tree */
+}
+/* Prevent the sizer/content from stretching to the full editor height and
+   pushing the caret to the bottom of the input box. */
+.memos-editor-native .cm-sizer,
+.memos-inline-editor-wrap .cm-sizer {
+  min-height: 0 !important;
+  height: auto !important;
+}
+.memos-editor-native .cm-contentContainer,
+.memos-inline-editor-wrap .cm-contentContainer {
+  align-items: flex-start !important;
+}
+.memos-editor-native .cm-content,
+.memos-inline-editor-wrap .cm-content {
+  align-self: flex-start !important;
+  height: auto !important;
+  min-height: 0 !important;
+  position: relative;
+  z-index: 0;
+}
+/* Keep the grafted editor's content anchored to the top-left corner even
+   while CM6 is still reconciling its offscreen birth layout; otherwise the
+   first auto-focused caret can paint at the bottom-right of the composer. */
+.memos-editor-native .cm-scroller,
+.memos-editor-native .cm-contentContainer,
+.memos-editor-native .cm-sizer {
+  justify-content: flex-start !important;
+}
+/* The composer placeholder is our own overlay, pinned to the first text
+   line. Hide Obsidian/CM6's built-in placeholder so it can never overlap,
+   center itself, or drift while the grafted editor settles. */
+.memos-editor-native .cm-placeholder {
+  display: none !important;
+}
+.memos-editor-native .memos-editor-placeholder {
+  position: absolute;
+  top: 8px;
+  left: 14px;
+  right: 14px;
+  z-index: 10;
+  pointer-events: none;
+  display: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-faint);
+  font-size: var(--font-text-size);
+  line-height: 1.5;
+  user-select: none;
+}
+.memos-editor-native.memos-editor-empty .memos-editor-placeholder {
+  display: block;
+}
+.memos-editor-textarea::placeholder {
+  color: transparent;
+}
+/* CM6 culls off-viewport content with content-visibility: auto; a grafted
+   editor re-shown after a hide can keep a stale "not visible" state that
+   culls EVERYTHING — the composer then renders blank until a scroll forces a
+   full repaint. This composer holds a handful of lines, so always render it.
+   (!important beats CM6's inline style.) */
+.memos-editor-native .cm-content,
+.memos-editor-native .cm-contentContainer,
+.memos-editor-native .cm-sizer,
+.memos-editor-native .cm-line,
+.memos-inline-editor-wrap .cm-content {
+  content-visibility: visible !important;
+}
+
+/* Inline editor wrapper — for editing existing memos */
+.memos-inline-editor-wrap {
+  min-height: 80px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.memos-inline-editor-wrap .markdown-source-view,
+.memos-inline-editor-wrap .cm-editor {
+  min-height: 80px;
+  /* Match the card body text — a hardcoded 14px here used to shrink the
+     text the moment a card switched into edit mode. */
+  font-size: var(--font-text-size);
+}
+.memos-inline-editor-wrap .cm-content {
+  line-height: var(--line-height-normal);
+}
+
+.memos-inline-editor-wrap .cm-scroller {
+  min-height: 80px;
+}
+
+.memos-editor-textarea:hover,
+.memos-editor-textarea:focus,
+.memos-editor-textarea:focus-visible,
+.memos-editor-textarea:active {
+  outline: none;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+/* ── Editor action bar (expand + send) ─────────────────────── */
+.memos-editor-actions {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+/* Ghost icon button — expand / collapse the compose box.
+   Sized with the same !important + min-* + flex-shrink:0 + overflow:visible
+   pattern as .memos-card-menu, otherwise Obsidian's icon/flex rules crush
+   the SVG down to a few pixels. */
+.memos-editor-expand {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: none;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.memos-editor-expand:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+.memos-editor-expand svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Primary square icon button — send the memo (same anti-compression pattern) */
+.memos-editor-send {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: none;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--memos-primary);
+  color: var(--memos-primary-fg);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.memos-editor-send:hover {
+  background: var(--memos-primary-hover);
+}
+
+.memos-editor-send svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── Expanded state — IN-PLACE growth (NOT a floating overlay).
+   The editor stays anchored at its original position in the feed and
+   simply GROWS to fill the vertical space freed by hiding the memo list.
+   Width is unchanged (feed is still centered at its max-width), so on
+   phone and iPad alike it only gets TALLER, never wider.  This avoids
+   the visual "jump" of a centered modal and keeps the input box where
+   the user expects it. ── */
+.memos-editor-is-expanded {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  z-index: auto;
+  border-radius: var(--memos-radius);
+  /* a touch more emphasis when expanded, but still the same in-flow box */
+  box-shadow: var(--memos-card-shadow);
+}
+
+/* The native-editor wrapper drops its compact max-height and fills the box. */
+.memos-editor-is-expanded .memos-editor-native {
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 0;
+}
+
+/* Let the reparented CM6 editor stretch to the wrapper's full height. */
+.memos-editor-is-expanded .memos-editor-native .markdown-source-view,
+.memos-editor-is-expanded .memos-editor-native .cm-editor {
+  height: 100%;
+  min-height: 0;
+}
+
+/* Fallback textarea also fills the expanded box. */
+.memos-editor-is-expanded .memos-editor-textarea {
+  flex: 1 1 auto;
+  height: 100%;
+  max-height: none;
+  min-height: 0;
+}
+
+/* Hide the memo list while expanded so the editor owns the freed space.
+   (Class is set on the .memos-feed column, the list's parent.) */
+.memos-editor-expanded .memos-list {
+  display: none;
+}
+
+/* Override the mobile/tablet compact height limits when expanded — the
+   editor now fills the whole feed column in-flow, so it must be allowed
+   to grow past the 160px compact cap.  Higher specificity than the
+   `body.is-mobile .memos-view …` rules above. */
+body.is-mobile .memos-view .memos-editor-is-expanded,
+body.is-tablet .memos-view .memos-editor-is-expanded,
+body.is-mobile .memos-view .memos-editor-is-expanded .memos-editor-native,
+body.is-tablet .memos-view .memos-editor-is-expanded .memos-editor-native,
+body.is-mobile .memos-view .memos-editor-is-expanded .memos-editor-textarea,
+body.is-tablet .memos-view .memos-editor-is-expanded .memos-editor-textarea {
+  flex: 1 1 auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+}
+
+/* 展开按钮：移动端已彻底移除该功能；桌面端保留。 */
+.memos-editor-expand.memos-expand-hidden {
+  display: none !important;
+}
+
+/* ── Live Preview adaptations ─────────────────────────────────
+   When the native editor is in Live Preview mode, Obsidian renders
+   markdown inline (headers get large, bold hides **, etc.).
+
+   IMPORTANT: we deliberately do NOT style headers here (no font-size,
+   no line-height, no color).  Header typography is owned by the theme
+   and by any header-related plugins the user has installed (e.g. ones
+   that render header levels relatively or recolor them).  Hardcoding
+   sizes here would outrank those rules and break the user's setup —
+   the native editor must render headers exactly like a normal Obsidian
+   editor does.  Only layout rules that don't touch typography live
+   below. */
+
+/* Give the compose editor content comfortable padding.  Horizontal padding
+   is generous so text doesn't hug the card edges; vertical is trimmed to
+   keep the compact box short.  !important is required — Obsidian's native
+   `.markdown-source-view.mod-cm6 .cm-content` rule otherwise outranks us. */
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-native .cm-content {
+  padding: 0 !important;
+}
+
+/* Tighter line spacing for BODY lines in the compact compose box.
+   Header lines (.HyperMD-header) are deliberately EXCLUDED — their
+   line-height is owned by the theme and any heading plugins, and must
+   not be overridden here. */
+.memos-editor-native .cm-content .cm-line:not(.HyperMD-header) {
+  line-height: 1.5 !important;
+}
+
+.memos-inline-live-preview .cm-content {
+  padding: 10px 14px;
+}
+
+/* Keep rendered images/embeds from overflowing the editor box */
+.memos-editor-native .cm-embed-block,
+.memos-inline-editor-wrap .cm-embed-block {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Live-preview adds a gutter for fold indicators — keep it narrow */
+.memos-editor-live-preview .cm-gutters,
+.memos-inline-live-preview .cm-gutters {
+  display: none !important;
+}
+
+/* ── Memo List ───────────────────────────────────────────── */
+
+.memos-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  margin-right: -4px;
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+}
+
+/* 移动端滚动性能：去掉卡片阴影以减少重绘 */
+body.is-mobile .memos-view .memos-card,
+body.is-tablet .memos-view .memos-card {
+  box-shadow: none;
+}
+
+/* 键盘弹落动画性能：iPad 上软键盘展开/收起会连续触发视口重排，数百张卡片
+   全量参与每帧布局计算 → 明显卡顿。content-visibility:auto 让屏外卡片跳过
+   布局与绘制（CSS 级虚拟化），每帧成本只与可见卡片数相关。卡片菜单挂在
+   document.body 上，不受裁剪影响。iOS 18+ / 现代内核支持；旧内核忽略该
+   属性，无副作用。 */
+body.is-mobile .memos-view .memos-list .memos-card,
+body.is-tablet .memos-view .memos-list .memos-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 180px;
+}
+
+.memos-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.memos-list::-webkit-scrollbar-thumb {
+  background: var(--memos-border);
+  border-radius: 6px;
+}
+
+.memos-list::-webkit-scrollbar-thumb:hover {
+  background: var(--memos-border-hover);
+}
+
+/* ── Date Header ─────────────────────────────────────────── */
+
+.memos-date-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 0 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.memos-date-header:first-child {
+  padding-top: 4px;
+}
+
+.memos-date-arrow {
+  font-size: 10px;
+  width: 14px;
+  text-align: center;
+  color: var(--memos-text-faint);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.memos-date-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--memos-text-muted);
+}
+
+.memos-date-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--memos-text-faint);
+  background: var(--memos-bg);
+  border: 1px solid var(--memos-border);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Memo Card ─────────────────────────────────────────────── */
+
+.memos-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: var(--memos-card);
+  border: 1px solid var(--memos-border);
+  border-radius: var(--memos-radius);
+  box-shadow: var(--memos-card-shadow);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  contain: layout style;
+  /* With 500+ cards, any feed reflow (sidebar open/close, dock resize)
+     used to re-layout & repaint every card. Skip off-screen cards: the
+     browser renders them only near the viewport. `auto` remembers each
+     card's real height after first paint, so scroll metrics stay exact
+     (scrollToMemo lands precisely). Dropdowns mount on document.body,
+     so the implied paint containment clips nothing. Unsupported
+     engines (older Safari) ignore the pair — no fallback needed. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 340px;
+}
+
+.memos-card:hover {
+  border-color: var(--memos-border-hover);
+  box-shadow: var(--memos-card-shadow-hover);
+}
+
+.memos-card-starred {
+  border-left: 3px solid var(--memos-primary);
+}
+
+.memos-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+  flex-shrink: 0;
+}
+
+.memos-card-updated {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--memos-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Timestamp at the card header's left edge — the header's space-between
+   layout pushes the right group (pin glyph + ⋯ menu) to the far side. */
+.memos-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Right group of the card header: the quiet pin marker plus the ⋯ menu
+   button, kept together so the pin sits directly beside the trigger. */
+.memos-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Pinned marker beside the ⋯ button — deliberately mirrors the pinned
+   sidebar-tag glyph: small, faint, a quiet status mark. Star gets the
+   loud affordance (green left border, .memos-card-starred); pin only
+   floats the card to the top of the list. */
+.memos-card-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--memos-text-faint);
+  opacity: 0.6;
+}
+.memos-card:hover .memos-card-pin {
+  color: var(--memos-text-muted);
+  opacity: 0.9;
+}
+.memos-card-pin svg {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+}
+
+/* Wrapper spans to protect SVG from flex compression */
+.memos-calendar-nav-wrapper,
+.memos-card-menu-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  flex-basis: 28px;
+}
+
+.memos-card-menu {
+  width: 22px;
+  height: 22px;
+  --icon-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  color: var(--memos-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  /* Narrow transition — never `all`, to avoid layout/box-shadow jitter. */
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.08s ease;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.memos-card:hover .memos-card-menu {
+  opacity: 1;
+}
+
+.memos-card-menu:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+.memos-card-menu:active {
+  transform: scale(0.9);
+  background: var(--memos-bg-muted);
+  color: var(--memos-text);
+}
+
+.memos-card-body {
+  font-size: var(--font-text-size);
+  line-height: 1.5;
+  color: var(--memos-text);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  --p-spacing: 0.35em;
+}
+
+.memos-card-body > p {
+  margin: 0 0 6px;
+}
+
+.memos-card-body > p:last-child {
+  margin-bottom: 0;
+}
+
+.memos-card-body ul,
+.memos-card-body ol {
+  margin: 4px 0 6px;
+  padding-left: 1.5em;
+}
+
+.memos-card-body li {
+  margin-bottom: 2px;
+}
+
+.memos-card-body li > p {
+  margin: 0;
+}
+
+.memos-card-body blockquote {
+  margin: 8px 0;
+  padding: 6px 14px;
+  border-left: 3px solid var(--memos-primary);
+  color: var(--memos-text-muted);
+  background: var(--memos-bg-soft);
+  border-radius: 0 var(--memos-radius-sm) var(--memos-radius-sm) 0;
+  font-style: italic;
+}
+
+/* Code blocks, inline code & the copy button — owned by the plugin.
+   Relying on Obsidian's `.markdown-rendered` cascade proved unreliable inside
+   this custom view (the copy button fell back to the global gray `button` pill
+   and the block lost its themed background), so we reproduce the native
+   reading-view look here, scoped to the card body. Values come from the active
+   theme's CSS variables (with Obsidian-default fallbacks) so the block matches
+   whatever theme is active. Prism `.token.*` colors are deliberately NOT set —
+   syntax highlighting comes straight from the theme. */
+.memos-card-body pre {
+  position: relative; /* anchor for the absolutely-positioned copy button */
+  background-color: var(--codeblock-background, var(--code-background, var(--background-primary-alt)));
+  color: var(--code-normal, var(--text-normal));
+  border-radius: var(--codeblock-border-radius, var(--code-radius, var(--radius-s, 6px)));
+  border: var(--code-border-width, 0) solid var(--code-border-color, transparent);
+  padding: var(--size-4-3, 12px) var(--size-4-4, 16px);
+  min-height: 38px;
+  margin: 8px 0;
+  /* The copy button is parented INSIDE pre (see normalizeCopyButtons). Keep the
+     horizontal scroll on the inner <code> instead of here, so wide code scrolls
+     while the button stays pinned in the block's top-right corner. */
+  overflow: hidden;
+  white-space: var(--code-white-space, pre-wrap);
+  font-family: var(--font-monospace);
+  font-size: var(--code-size, var(--font-smaller, 0.875em));
+  line-height: var(--line-height-tight, 1.4);
+}
+
+/* Inline code (outside a block): theme-tinted, matching the reading view. */
+.memos-card-body code {
+  color: var(--inline-code-normal, var(--code-normal, var(--text-normal)));
+  background-color: var(--inline-code-background, var(--code-background, transparent));
+  border-radius: var(--radius-s, 4px);
+  padding: 0.1em 0.35em;
+  font-family: var(--font-monospace);
+  font-size: var(--code-size, 0.9em);
+}
+
+/* Code inside a block must NOT inherit the inline tint above. It is also the
+   horizontal-scroll container (pre keeps overflow:hidden so the copy button
+   pinned in pre's corner doesn't scroll away with wide code). */
+.memos-card-body pre code {
+  display: block;
+  overflow-x: auto;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+/* Code-block copy button — force the small, transparent, top-right native look.
+   `!important` guarantees we beat both Obsidian's global `button` pill and any
+   cascade surprise that previously left it oversized. Hidden until the block is
+   hovered (always visible on touch, where there is no hover). */
+.memos-card-body button.copy-code-button {
+  position: absolute !important;
+  top: 0 !important;
+  inset-inline-end: 0 !important;
+  margin: 6px !important;
+  padding: 6px 8px !important;
+  height: auto !important;
+  width: auto !important;
+  min-height: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  color: var(--text-muted) !important;
+  font-size: var(--font-ui-smaller) !important;
+  font-family: var(--font-interface) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+  z-index: 2;
+}
+.memos-card-body pre:hover button.copy-code-button,
+.memos-card-body button.copy-code-button:focus-visible {
+  opacity: 1;
+}
+.memos-card-body button.copy-code-button:hover {
+  background-color: var(--background-modifier-hover) !important;
+}
+.memos-card-body button.copy-code-button svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+}
+.memos-card-body button.copy-code-button.memos-copy-success {
+  color: var(--text-success) !important;
+  opacity: 1;
+}
+body.is-mobile .memos-card-body button.copy-code-button {
+  opacity: 1;
+}
+
+.memos-card-body a {
+  color: var(--memos-primary);
+  text-decoration: none;
+}
+
+.memos-card-body a:hover {
+  text-decoration: underline;
+}
+
+.memos-card-body img {
+  max-width: 100%;
+  border-radius: var(--memos-radius-sm);
+  margin: 6px 0;
+}
+
+/* ── Referenced memo embeds (canvas node refs) ─────────────── */
+/* A `![[Memos/2026.canvas#<id>]]` inside a memo is rendered by Obsidian's own
+   embed renderer. Strip its default chrome (border, title bar, internal
+   scroll) and match memos typography, so a referenced card reads like part of
+   the feed — styled as a subtle quote-card consistent with memos blockquotes. */
+.memos-card-body .internal-embed {
+  display: block;
+  margin: 8px 0;
+}
+.memos-card-body .internal-embed .markdown-embed,
+.memos-card-body .internal-embed.markdown-embed {
+  border: none;
+  border-left: 3px solid var(--memos-primary);
+  background: var(--memos-bg-soft);
+  border-radius: 0 var(--memos-radius-sm) var(--memos-radius-sm) 0;
+  padding: 8px 12px;
+  margin: 0;
+}
+.memos-card-body .internal-embed .markdown-embed-title {
+  display: none;
+}
+.memos-card-body .internal-embed .markdown-embed-content,
+.memos-card-body .internal-embed .markdown-preview-view,
+.memos-card-body .internal-embed .markdown-rendered {
+  max-height: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.memos-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.memos-card-tag {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--memos-primary);
+  background: rgba(var(--memos-primary-rgb), 0.1);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.memos-card-tag:hover {
+  background: rgba(var(--memos-primary-rgb), 0.18);
+}
+
+/* ── Action Dropdown ─────────────────────────────────────── */
+/* NOTE: the dropdown is appended to document.body, which is OUTSIDE the
+   .memos-view scope, so we use Obsidian's global theme variables here
+   (not the --memos-* tokens) to stay correct in light & dark themes. */
+
+.memos-card-dropdown {
+  position: absolute;
+  z-index: var(--layer-menu, 1000);
+  display: flex;
+  flex-direction: column;
+  min-width: 172px;
+  padding: 5px;
+  gap: 1px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+  transform-origin: top right;
+  animation: memos-dropdown-in 0.14s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+@keyframes memos-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.memos-card-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-normal);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.memos-card-dropdown-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.memos-card-dropdown-item:active {
+  background: var(--background-modifier-border-hover);
+}
+
+.memos-card-dropdown-item-icon {
+  --icon-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.12s ease;
+}
+
+/* Force uniform icon size — beat Obsidian's global svg sizing rules. */
+.memos-card-dropdown-item-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+}
+
+.memos-card-dropdown-item-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.memos-card-dropdown-separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--background-modifier-border);
+  flex-shrink: 0;
+}
+
+/* Destructive action (Delete) */
+.memos-card-dropdown-item-danger,
+.memos-card-dropdown-item-danger .memos-card-dropdown-item-icon {
+  color: var(--text-error);
+}
+
+.memos-card-dropdown-item-danger:hover {
+  background: rgba(var(--background-modifier-error-rgb, 232, 93, 93), 0.1);
+}
+
+.memos-card-dropdown-item-danger:active {
+  background: rgba(var(--background-modifier-error-rgb, 232, 93, 93), 0.16);
+}
+
+/* ── Inline Editor ───────────────────────────────────────── */
+
+.memos-inline-editor {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--memos-primary);
+  border-radius: var(--memos-radius-sm);
+  background: var(--memos-bg);
+  color: var(--memos-text);
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 1.65;
+  resize: none;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--memos-primary-rgb), 0.1);
+  box-sizing: border-box;
+}
+
+.memos-inline-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+/* Live preview shown below the textarea in plain-text inline-edit mode
+   (mobile + desktop fallback). Renders as the user types. */
+.memos-inline-preview {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--memos-radius-sm);
+  background: var(--memos-bg-soft);
+  border: 1px dashed var(--memos-border);
+  color: var(--memos-text);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.memos-inline-preview:empty {
+  display: none;
+}
+
+/* ── Mobile quick-edit formatting bar ────────────────────── */
+/* We reuse Obsidian's NATIVE mobile toolbar (the formatting bar above
+   the soft keyboard) — no plugin-side bar is built. It only appears for
+   the workspace "active editor", and the grafted composer editor lives
+   in a detached leaf, so editor.ts claims workspace._activeEditor via
+   claimMobileActiveEditor() whenever the composer gains focus. No
+   styles are needed here: .mobile-toolbar* rules ship with Obsidian. */
+
+/* Inline textarea does not float its action buttons inside the input,
+   so it does not need the 58px bottom clearance meant for the top editor. */
+.memos-inline-editor-wrap .memos-editor-textarea {
+  padding-bottom: 10px !important;
+}
+
+.memos-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: var(--memos-radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  font-family: var(--font-text);
+}
+
+.memos-btn-primary {
+  background: var(--memos-primary);
+  color: var(--memos-primary-fg);
+  border-color: var(--memos-primary);
+}
+
+.memos-btn-primary:hover {
+  background: var(--memos-primary-hover);
+  border-color: var(--memos-primary-hover);
+}
+
+.memos-btn-ghost {
+  background: transparent;
+  color: var(--memos-text-muted);
+  border-color: var(--memos-border);
+}
+
+.memos-btn-ghost:hover {
+  background: var(--memos-hover);
+  border-color: var(--memos-border-hover);
+  color: var(--memos-text);
+}
+
+/* ── Empty State ─────────────────────────────────────────── */
+
+.memos-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  gap: 6px;
+}
+
+.memos-empty-icon {
+  font-size: 28px;
+  opacity: 0.35;
+  margin-bottom: 8px;
+  filter: grayscale(0.5);
+}
+
+.memos-empty-text {
+  font-size: 14px;
+  color: var(--memos-text-muted);
+  font-weight: 500;
+}
+
+.memos-empty-hint {
+  font-size: 12px;
+  color: var(--memos-text-faint);
+}
+
+/* ── Monthly Activity Calendar ─────────────────────────────── */
+
+.memos-activity-section {
+  margin-bottom: 8px;
+}
+
+.memos-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.memos-calendar-nav {
+  width: 14px;
+  height: 14px;
+  --icon-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  color: var(--memos-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  overflow: visible;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+.memos-calendar-nav:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+.memos-calendar-month {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--memos-text);
+  text-transform: capitalize;
+}
+
+.memos-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.memos-calendar-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--memos-text-faint);
+}
+
+.memos-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.memos-calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--memos-text);
+  background: var(--memos-bg-soft);
+  border: 1px solid var(--memos-border);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.memos-calendar-cell.empty {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.memos-calendar-cell.future {
+  color: var(--memos-text-faint);
+  background: var(--memos-bg-soft);
+  cursor: default;
+}
+
+.memos-calendar-cell:hover:not(.empty):not(.future) {
+  border-color: var(--memos-primary);
+}
+
+/* Deep level fills keep dark numerals across both themes: the ramp's
+   green tops out bright enough (~#0a9e55) that a dark digit out-contrasts
+   white at either end, and the digit color no longer flips to white on
+   the busiest days (which made recent dates read as blanks against the
+   rest of the calendar). */
+.memos-calendar-cell.level-1 { background: rgba(var(--memos-primary-rgb), 0.25); color: var(--memos-text); border-color: transparent; }
+.memos-calendar-cell.level-2 { background: rgba(var(--memos-primary-rgb), 0.45); color: var(--memos-text); border-color: transparent; }
+.memos-calendar-cell.level-3 { background: rgba(var(--memos-primary-rgb), 0.65); color: var(--memos-text); border-color: transparent; }
+.memos-calendar-cell.level-4 { background: rgba(var(--memos-primary-rgb), 0.9); color: var(--memos-text); border-color: transparent; }
+body.theme-dark .memos-calendar-cell.level-3,
+body.theme-dark .memos-calendar-cell.level-4 {
+  color: #042e1b;
+}
+
+/* Today: numeral only — never a fill (the level fill must stay readable).
+   Bold + underline + a color that flips against its cell: deep green over
+   the pale fills (luminous mint in dark theme), near-black ink over the
+   deep fills — either way it is the only underlined numeral in the grid. */
+.memos-calendar-cell.today {
+  color: #04623a;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+/* Dark theme: the pale fills are dark here, so today flips to a luminous
+   mint instead. */
+body.theme-dark .memos-calendar-cell.today {
+  color: #b7f5d3;
+}
+
+/* On the deep fills the numeral goes near-black-green in BOTH themes —
+   white fails on the light theme's mid-green (1.8:1), while this ink
+   holds ≥5.8:1 over level-3/4 everywhere; the underline is what sets it
+   apart from the ramp's own dark digits. */
+.memos-calendar-cell.today.level-3,
+.memos-calendar-cell.today.level-4 {
+  color: #012b16;
+}
+
+/* Selected date: a 2px ring OUTSIDE the cell, painted over the sidebar
+   background instead of the fill — equally loud on level-0 and level-4
+   cells, and the heat colour inside stays fully visible. The 4px grid gap
+   leaves 2px clearance, so the ring never touches a neighbour. The green
+   is one step deeper than the fill ramp so the ring reads as chrome, not
+   as another heat level. */
+.memos-calendar-cell.active {
+  border-color: transparent;
+  box-shadow: 0 0 0 2px #059650;
+}
+
+/* ── Heatmap / Tag Tree (legacy classes) ─────────────────── */
+
+.memos-lite-heatmap {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 1fr);
+  gap: 2px;
+  padding: 2px 0;
+}
+
+.memos-lite-heatmap-cell {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--memos-bg-soft);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  cursor: default;
+  border: 1px solid var(--memos-border);
+}
+
+.memos-lite-heatmap-cell.level-1 { background: rgba(var(--memos-primary-rgb), 0.25); border-color: transparent; }
+.memos-lite-heatmap-cell.level-2 { background: rgba(var(--memos-primary-rgb), 0.45); border-color: transparent; }
+.memos-lite-heatmap-cell.level-3 { background: rgba(var(--memos-primary-rgb), 0.65); border-color: transparent; }
+.memos-lite-heatmap-cell.level-4 { background: rgba(var(--memos-primary-rgb), 0.9); border-color: transparent; }
+
+.memos-lite-heatmap-cell:hover {
+  transform: scale(1.4);
+}
+
+.memos-lite-heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--memos-text-faint);
+}
+
+.memos-lite-heatmap-legend .memos-lite-heatmap-cell {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--memos-border);
+  border-radius: 2px;
+}
+
+.memos-lite-heatmap-legend .memos-lite-heatmap-cell.level-1,
+.memos-lite-heatmap-legend .memos-lite-heatmap-cell.level-2,
+.memos-lite-heatmap-legend .memos-lite-heatmap-cell.level-3,
+.memos-lite-heatmap-legend .memos-lite-heatmap-cell.level-4 {
+  border-color: transparent;
+}
+
+.memos-lite-tag-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.memos-lite-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--memos-radius-sm);
+  font-size: 13px;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  user-select: none;
+  line-height: 1.3;
+}
+
+.memos-lite-tag-item:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+.memos-lite-tag-item.active {
+  background: rgba(var(--memos-primary-rgb), 0.1);
+  color: var(--memos-primary);
+  font-weight: 600;
+}
+
+/* Leading slot where the '#' glyph used to be. Parents carry an
+   expand/collapse chevron here; leaves and pinned rows keep an empty
+   slot of the same width so every name aligns at its depth. */
+.memos-lite-tag-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  flex-shrink: 0;
+  color: var(--memos-text-faint);
+}
+.memos-lite-tag-toggle svg {
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+  transition: transform 0.18s ease;
+}
+.memos-lite-tag-toggle.has-children {
+  cursor: pointer;
+}
+.memos-lite-tag-toggle.has-children:hover {
+  color: var(--memos-text-muted);
+}
+/* Expanded: rotate the chevron to point down. */
+.memos-lite-tag-toggle.is-expanded svg {
+  transform: rotate(90deg);
+}
+
+.memos-lite-tag-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memos-lite-tag-count {
+  font-size: 11px;
+  color: var(--text-normal);
+  min-width: 20px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.memos-lite-tag-item:hover .memos-lite-tag-count {
+  opacity: 1;
+}
+.memos-lite-tag-item.active .memos-lite-tag-count {
+  color: var(--memos-primary);
+  opacity: 0.6;
+}
+.memos-lite-tag-item.active:hover .memos-lite-tag-count {
+  opacity: 1;
+}
+
+/* Nested children — indented under their parent with a guide rule. */
+.memos-lite-tag-children {
+  padding-left: 14px;
+  border-left: 1px solid var(--memos-border);
+  margin-left: 7px;
+}
+
+/* ── Pinned tags section ─────────────────────────────────── */
+.memos-lite-pinned {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 4px 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--memos-border);
+}
+
+/* Pin marker — tucked between the tag name and its count as a quiet
+   pair. Deliberately faint and small so it reads as a soft status
+   glyph beside the number, not a loud primary accent. */
+.memos-lite-tag-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--memos-text-faint);
+  opacity: 0.5;
+}
+.memos-lite-tag-pin svg {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+}
+/* On an active row the count tints primary; nudge the pin to match so
+   the pair stays coherent without getting loud. */
+.memos-lite-tag-item.active .memos-lite-tag-pin {
+  color: var(--memos-primary);
+  opacity: 0.5;
+}
+
+/* ── Tag management modals ───────────────────────────────── */
+/* Bare TextComponent inputs stretch to the dialog width. */
+.memos-tag-modal input {
+  width: 100%;
+}
+.memos-tag-modal-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 4px 0 12px;
+  line-height: 1.5;
+}
+.memos-tag-modal-hint-pre {
+  white-space: pre-line;
+}
+
+.memos-tag-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* ─── Mobile — shared (phones + tablets) ─────────────────── */
+
+/* Drag-resizing is impractical on touch. */
+.is-mobile .memos-sidebar-resizer {
+  display: none;
+}
+
+/* Feed: tighter horizontal padding + safe-area clearance at the bottom. */
+.is-mobile .memos-feed {
+  padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
+}
+
+.is-mobile .memos-card-body,
+.is-mobile .memos-card-tags,
+.is-mobile .memos-card-footer {
+  padding-left: 0;
+}
+
+/* No hover on touch — keep the card action menu visible. */
+.is-mobile .memos-card-menu {
+  opacity: 1;
+}
+
+/* 16px text inputs stop iOS from zooming the page on focus. */
+.is-mobile .memos-search-input {
+  font-size: 16px;
+  height: 44px;
+}
+/* Funnel chip keeps its square proportions in the taller mobile shell. */
+.is-mobile .memos-filter-btn {
+  width: 38px;
+}
+/* Mobile textarea: font-size is now handled by the max() rule below
+   (line ~2120) and padding-bottom is set in the mobile editor section. */
+
+/* Bigger in-sidebar hide button on touch. */
+.is-mobile .memos-sidebar-hide-btn {
+  width: 36px;
+  height: 36px;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+/* Larger touch targets (≈44px). */
+.is-mobile .memos-nav-item {
+  width: 40px;
+  height: 40px;
+  --icon-size: 20px;
+}
+
+/* Sidebar nav items keep their label layout on mobile. */
+.is-mobile .memos-sidebar-nav .memos-nav-item {
+  width: auto;
+  height: 44px;
+  padding: 0 12px;
+  --icon-size: 18px;
+  font-size: 14px;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:hover {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:active {
+  transform: scale(0.9) !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+/* iPad: same tactile treatment for the card menu button (tablet, not phone). */
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
+}
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:hover {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:active {
+  transform: scale(0.9) !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+}
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+.is-mobile .memos-card-dropdown-item {
+  min-height: 50px;
+  font-size: 15px;
+  padding: 10px 14px;
+  gap: 12px;
+  transition: background-color 0.12s ease, transform 0.08s ease;
+}
+.is-mobile .memos-card-dropdown-item:active {
+  transform: scale(0.98);
+  background: var(--background-modifier-border-hover);
+}
+
+.is-mobile .memos-card-dropdown-item-icon {
+  width: 20px;
+  height: 20px;
+  --icon-size: 18px;
+}
+
+.is-mobile .memos-card-dropdown-item-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+.is-mobile .memos-lite-tag-item {
+  min-height: 42px;
+}
+.is-mobile .memos-sidebar {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+/* Tag "more" button — only rendered on mobile (replaces right-click). */
+.memos-lite-tag-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -6px -4px 2px;
+  border-radius: var(--memos-radius-sm);
+  color: var(--memos-text-faint);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.memos-lite-tag-more:active {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-lite-tag-more svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+}
+
+/* ─── Phone: header hamburger + sidebar drawer ───────────── */
+
+/* Left group in the feed header (hamburger + title). */
+.memos-feed-header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Hamburger button — phone only. */
+.memos-drawer-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  --icon-size: 20px;
+  border-radius: var(--memos-radius-sm);
+  align-items: center;
+  justify-content: center;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.memos-drawer-btn:active {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+.memos-is-phone .memos-drawer-btn {
+  display: flex;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-drawer-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+}
+
+/* On phones the floating restore button is replaced by the hamburger. */
+.memos-is-phone .memos-sidebar-float-btn {
+  display: none;
+}
+
+/* Drawer backdrop — dims the feed while the phone drawer is open. */
+.memos-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 25;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.memos-drawer-backdrop-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Phone drawer: the sidebar slides in over the feed. */
+.memos-is-phone .memos-sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(320px, 85vw) !important;
+  z-index: 30;
+  transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.18);
+  /* 关闭态用 translateX 推到屏外后，visibility:hidden 让浏览器跳过它的
+     布局后的绘制（标签树/热力图数百节点不再每帧参与合成）——侧边栏性能。 */
+  visibility: hidden;
+}
+/* Docked right → slides in from the right edge. */
+.memos-is-phone .memos-sidebar:not(.memos-sidebar-left) {
+  right: 0;
+  transform: translateX(100%);
+}
+/* Docked left → slides in from the left edge. */
+.memos-is-phone .memos-sidebar.memos-sidebar-left {
+  left: 0;
+  transform: translateX(-100%);
+}
+.memos-is-phone .memos-sidebar.memos-drawer-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.25s ease;
+}
+
+/* ─── Compact container: desktop view docked into a narrow Obsidian
+   sidebar ──────────────────────────────────────────────────────────
+   A statically docked internal sidebar would crush the feed into a
+   strip too thin to use (and cover the editor's panel toggle), so in
+   containers under ~640px the sidebar becomes a floating drawer over
+   the feed — the same behaviour phones get. view.ts toggles the class
+   from a ResizeObserver. */
+.memos-view-compact .memos-sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(300px, 92%) !important;
+  z-index: 30;
+  transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.18);
+  /* 同手机抽屉：关闭态跳过绘制，窄栏停靠时不再为屏外侧栏付出合成成本。 */
+  visibility: hidden;
+}
+.memos-view-compact .memos-sidebar:not(.memos-sidebar-left) {
+  right: 0;
+  transform: translateX(100%);
+}
+.memos-view-compact .memos-sidebar.memos-sidebar-left {
+  left: 0;
+  transform: translateX(-100%);
+}
+.memos-view-compact .memos-sidebar.memos-drawer-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.25s ease;
+}
+/* The floating restore button is redundant here — the editor already
+   carries a panel toggle — and would sit over the dock's own chrome. */
+.memos-view-compact .memos-sidebar-float-btn {
+  display: none;
+}
+
+/* Docked into a narrow Obsidian sidebar every pixel counts: the main
+   pane's generous 24px gutters would waste a quarter of the dock's
+   width on blank margin around the composer and the cards. */
+.memos-view-compact .memos-feed {
+  padding: 12px 8px 24px;
+}
+
+/* Docked into an Obsidian sidebar (left/right dock) the main-pane
+   gutters are pure waste — and the dock can be dragged wider than the
+   640px compact threshold, so scope on the dock container itself, not
+   the compact class. Zero side/bottom padding: cards and composer sit
+   flush with the dock edges, and the bottom trim eats the blank strip
+   under the last card. (Top stays at the global 8px — the !important
+   rule on .memos-feed owns it.) */
+.workspace-split.mod-right-split .memos-view .memos-feed,
+.workspace-split.mod-left-split .memos-view .memos-feed {
+  padding: 0;
+}
+
+/* Some themes pad the leaf container itself — kill any phantom margin
+   so the view truly reaches the dock's edges and bottom. */
+.workspace-split.mod-right-split .workspace-leaf-content[data-type="memos-for-obsidian-view"],
+.workspace-split.mod-left-split .workspace-leaf-content[data-type="memos-for-obsidian-view"] {
+  padding: 0;
+}
+
+/* ─── Phone: dropdown menus become bottom sheets ─────────── */
+.memos-card-dropdown.memos-dropdown-sheet {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  bottom: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  border-radius: 16px 16px 0 0;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+  transform-origin: bottom center;
+  animation: memos-sheet-in 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+@keyframes memos-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FINAL OVERRIDE — Must be the most specific rules
+   ═══════════════════════════════════════════════════════════ */
+
+/* Force SVG size with maximum specificity */
+.memos-view .memos-sidebar .memos-activity-section .memos-calendar-nav,
+.memos-view .memos-sidebar .memos-activity-section .memos-calendar-nav * {
+  width: auto !important;
+  height: auto !important;
+}
+
+.memos-view .memos-sidebar .memos-activity-section .memos-calendar-nav svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+.memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-menu,
+.memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-menu * {
+  width: auto !important;
+  height: auto !important;
+}
+
+.memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-menu svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* Override Obsidian core SVG rules */
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] svg {
+  width: auto !important;
+  height: auto !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-calendar-nav svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-nav-item svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-header-btn svg {
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px !important;
+  min-height: 17px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-float-btn svg {
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px !important;
+  min-height: 17px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+
+/* ═══ 自定义覆盖（唯一一处，不重复追加）═══ */
+
+/* 1. 隐藏左上角汉堡按钮（编辑器内已有侧边栏按钮） */
+.memos-drawer-btn { display: none !important; }
+
+/* 2. 编辑器操作栏：全部右对齐 */
+.memos-editor-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 3. 侧边栏/搜索按钮样式（和展开按钮一致） */
+.memos-editor-sidebar-btn,
+.memos-editor-search-btn,
+.memos-editor-top-btn {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: none;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+.memos-editor-sidebar-btn:hover,
+.memos-editor-search-btn:hover,
+.memos-editor-top-btn:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+.memos-editor-sidebar-btn svg,
+.memos-editor-search-btn svg,
+.memos-editor-top-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 4. 卡片段间距：覆盖 Obsidian 默认 --p-spacing */
+.memos-card-body .markdown-rendered p {
+  margin-top: 0 !important;
+  margin-bottom: 0.35em !important;
+}
+.memos-card-body .markdown-rendered p:last-child {
+  margin-bottom: 0 !important;
+}
+.memos-card-body .markdown-rendered ul,
+.memos-card-body .markdown-rendered ol {
+  margin-top: 0.15em !important;
+  margin-bottom: 0.35em !important;
+}
+
+/* 5. 编辑器字体统一 */
+.memos-editor-textarea,
+.memos-inline-editor {
+  font-size: var(--font-text-size) !important;
+  line-height: 1.5 !important;
+}
+.memos-editor-native .cm-content {
+  font-size: var(--font-text-size) !important;
+  line-height: 1.5 !important;
+}
+
+/* 6. 紧凑布局：压缩留白，让单屏浮现更多卡片
+   gap: 3px —— 输入框与卡片区域之间保留 3px 细缝（用户指定）。
+   padding-bottom: 0 —— 列表贴到视图底边，与侧边栏底边一致，不露底部白条。 */
+.memos-feed {
+  padding: 10px 16px 0;
+  gap: 3px;
+}
+.memos-card {
+  gap: 5px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
+/* 隐藏列表滚动条：6px 的 webkit 滚动条会吃掉布局宽度，导致卡片比上方
+   输入框窄一截、左右不对齐。隐藏后卡片与输入框宽度严格一致；滚动功能
+   不受影响（滚轮/触控板/触屏滑动照常）。基础规则里的 thumb 样式随之失效。 */
+.memos-list {
+  scrollbar-width: none; /* Firefox / 标准属性 */
+}
+.memos-list::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
+/* 输入框外观加重：边框加深一档 + 更实的投影，与下方卡片列表明确分层。
+   选择器特异度高于基础 .memos-editor 与 :has(.cm-focused) 规则，聚焦时
+   投影不回退；移动端同样生效，无需单独规则。 */
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
+  border-color: var(--memos-border-hover);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.09), 0 6px 18px rgba(15, 23, 42, 0.07);
+}
+
+/* 7. 移动端（body.is-mobile 覆盖手机+平板） */
+body.is-mobile .memos-feed-header,
+body.is-tablet .memos-feed-header {
+  display: none !important;
+}
+
+/* 移动端：Obsidian 的 workspace 会塌缩到 memos 内容高度（虚拟化后列表变短），
+   屏幕底部露出 body 背景（白底）。让 memos 视图至少填满视口高度，把 workspace
+   撑起来。100dvh 是动态视口高（键盘弹出时自动收缩）；100vh 作旧内核兜底。 */
+body.is-mobile .memos-view,
+body.is-tablet .memos-view {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+/* 键盘弹出时 Obsidian 的 workspace 塌缩到 ~408px（820px 视口），下方露出
+   body 背景（白底）。强制核心容器填满动态视口高 —— 应用本来就该填满屏幕，
+   这是修正而非 hack。仅移动端，可随时回退。 */
+body.is-mobile .app-container,
+body.is-tablet .app-container,
+body.is-mobile .workspace,
+body.is-tablet .workspace,
+body.is-mobile .horizontal-main-container,
+body.is-tablet .horizontal-main-container {
+  height: 100vh !important;
+  height: 100dvh !important;
+}
+
+/* 移动端 Obsidian header 是悬浮叠加层，JS 直接设 paddingTop
+   到 contentEl（最高优先级），CSS 仅做兜底。 */
+body.is-mobile .memos-view .memos-feed,
+body.is-tablet .memos-view .memos-feed {
+  padding-top: 4px !important;
+  padding-bottom: 0 !important;
+}
+
+/* 移动端底部浮动导航栏（新版 Obsidian 的 auto-hiding floating nav bar）
+   悬浮在内容之上，会把列表最底部的卡片遮住。给列表滚动内容底部留白：
+   优先取 Obsidian 的导航栏高度变量，缺失时退回 72px，再加底部安全区
+   （无 Home 指示条的设备该值为 0）。滚动到底时最后一张卡片停在留白
+   上方，不会被遮挡。 */
+body.is-mobile .memos-view .memos-list,
+body.is-tablet .memos-view .memos-list {
+  padding-bottom: calc(var(--mobile-nav-bar-height, 72px) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 8. 移动端编辑器：textarea padding 适配触屏操作按钮。
+   min-height 82 = CM6 稳定高度（native padding 8+44=52，82+52=134 与
+   .memos-editor-native 的 min-height:134 对齐）——否则 textarea 阶段 144px
+   比 CM6 阶段高，交换时 iPad 上表现为"从大到小"跳变。 */
+body.is-mobile .memos-view .memos-editor-textarea,
+body.is-tablet .memos-view .memos-editor-textarea {
+  min-height: 82px !important;
+  max-height: 280px !important;
+  padding: 6px 16px !important;
+  padding-bottom: 40px !important;
+}
+/* .memos-editor-native height limits are identical to desktop — no override needed. */
+
+/* 移动端：detach 后编辑器不再是活跃 leaf，Obsidian 移动端会把
+   .cm-content 的 user-select 锁成 none、并清除 contenteditable，导致
+   点击不聚焦、键盘不弹。这里强制可选中/可编辑（JS 端也会兜底设置
+   contenteditable + 点击聚焦），恢复手机端正常输入。
+
+   注意：可编辑区域只能是 .cm-content（CM6 自己的编辑层）。
+   不要给 .cm-editor 容器设 -webkit-user-modify —— 那会让整个容器
+   变成 plaintext 编辑区，iOS 会把光标放到容器末尾（输入框最下面），
+   删除键还会在 CM6 之外原生地毁掉 contentDOM（光标跳顶、边距归零、
+   Live Preview 失效）。.cm-content 上的 read-write 与 Obsidian iOS
+   自带的规则一致。 */
+body.is-mobile .memos-view .memos-editor-native .cm-editor,
+body.is-tablet .memos-view .memos-editor-native .cm-editor,
+body.is-mobile .memos-view .memos-editor-native .cm-content,
+body.is-tablet .memos-view .memos-editor-native .cm-content,
+body.is-mobile .memos-card .memos-inline-editor-wrap .cm-editor,
+body.is-tablet .memos-card .memos-inline-editor-wrap .cm-editor,
+body.is-mobile .memos-card .memos-inline-editor-wrap .cm-content,
+body.is-tablet .memos-card .memos-inline-editor-wrap .cm-content {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: manipulation;
+  pointer-events: auto !important;
+}
+body.is-mobile .memos-view .memos-editor-native .cm-content,
+body.is-tablet .memos-view .memos-editor-native .cm-content,
+body.is-mobile .memos-card .memos-inline-editor-wrap .cm-content,
+body.is-tablet .memos-card .memos-inline-editor-wrap .cm-content {
+  -webkit-user-modify: read-write;
+}
+
+/* 阅读模式文字选中：Obsidian 对自定义 View（非 MarkdownView）可能施加
+   -webkit-user-select: none（移动端）或通过 workspace 容器级联阻断选中
+   （桌面端）。编辑器端已在上方修复（.cm-content），这里补上阅读模式
+   （.markdown-rendered），全平台生效。
+   -webkit-touch-callout: default 恢复 iOS 长按弹出"复制/查询/分享"菜单。
+   纯 CSS，零性能开销。 */
+.memos-card-body,
+.memos-card-body .markdown-rendered {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+body.is-mobile .memos-card-body,
+body.is-tablet .memos-card-body,
+body.is-mobile .memos-card-body .markdown-rendered,
+body.is-tablet .memos-card-body .markdown-rendered {
+  -webkit-touch-callout: default !important;
+}
+
+/* 9. 移动端按钮：纯半透明（无毛玻璃），便于阅读按钮下方文字。
+   质感优化：极轻内描边 + 按压缩放反馈 + 平滑过渡。 */
+body.is-mobile .memos-view .memos-editor-sidebar-btn,
+body.is-mobile .memos-view .memos-editor-search-btn,
+body.is-mobile .memos-view .memos-editor-top-btn,
+body.is-mobile .memos-view .memos-editor-expand,
+body.is-tablet .memos-view .memos-editor-sidebar-btn,
+body.is-tablet .memos-view .memos-editor-search-btn,
+body.is-tablet .memos-view .memos-editor-top-btn,
+body.is-tablet .memos-view .memos-editor-expand {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
+}
+body.is-mobile .memos-view .memos-editor-sidebar-btn:hover,
+body.is-mobile .memos-view .memos-editor-search-btn:hover,
+body.is-mobile .memos-view .memos-editor-top-btn:hover,
+body.is-mobile .memos-view .memos-editor-expand:hover,
+body.is-tablet .memos-view .memos-editor-sidebar-btn:hover,
+body.is-tablet .memos-view .memos-editor-search-btn:hover,
+body.is-tablet .memos-view .memos-editor-top-btn:hover,
+body.is-tablet .memos-view .memos-editor-expand:hover {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+body.is-mobile .memos-view .memos-editor-send,
+body.is-tablet .memos-view .memos-editor-send {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  background: rgba(var(--memos-primary-rgb), 0.2) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--memos-primary-rgb), 0.18) !important;
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
+}
+body.is-mobile .memos-view .memos-editor-send:hover,
+body.is-tablet .memos-view .memos-editor-send:hover {
+  background: rgba(var(--memos-primary-rgb), 0.32) !important;
+}
+/* 点按即响应：显式声明 manipulation，让浏览器跳过双击缩放/捏合的手势等候
+   判定，消除搜索、侧边栏等按钮"点了要等一下才反应"的迟滞感。 */
+body.is-mobile .memos-view .memos-editor-actions button,
+body.is-tablet .memos-view .memos-editor-actions button {
+  touch-action: manipulation;
+}
+/* 点按即响应（视图整体）：其余点击区同样去掉双击缩放的手势等候判定。 */
+body.is-mobile .memos-view,
+body.is-tablet .memos-view {
+  touch-action: manipulation;
+}
+/* 核心移动端快速编辑条必须浮在插件抽屉（z-index:30）之上——memos 停靠
+   侧边栏时工具栏被抽屉压住即是 z 序问题；工具栏始终是全局最高层 UI。 */
+body.is-mobile .mobile-toolbar,
+body.is-tablet .mobile-toolbar {
+  z-index: 4000 !important;
+}
+/* iPad 位置修正：键盘弹出时布局视口已收缩（100vh=键盘上方可见区），核心公式
+   top: calc(100vh - var(--keyboard-height) - …) 会再减一次键盘高 → 双重计数。
+   改用纯 100vh 定位（位置正确），禁用核心 transform/transition 动画。
+   注：position:fixed 方案在 iOS 键盘场景不可见（已验证），已弃用。 */
+body.is-tablet .mobile-toolbar {
+  top: calc(100vh - var(--mobile-toolbar-height, 44px)) !important;
+  transform: none !important;
+  transition: none !important;
+}
+/* 快速编辑栏开关关闭时（iPad + 设置「移动端快速编辑栏」= 关），无论核心如何
+   show()，都强制隐藏工具栏及其 spacer —— 根治 iPad 上 2s 延迟 / 白底 / 发热。
+   类由 MemoEditor.claimToolbar 在 composer 聚焦时加、失焦时移除，
+   因此普通笔记（Memos 未聚焦）的工具栏不受影响。 */
+body.memos-toolbar-off .mobile-toolbar,
+body.memos-toolbar-off .mobile-toolbar-spacer {
+  display: none !important;
+}
+/* 实体按压反馈：按下时轻微缩小，给人"按下去"的触感 */
+body.is-mobile .memos-view .memos-editor-sidebar-btn:active,
+body.is-mobile .memos-view .memos-editor-search-btn:active,
+body.is-mobile .memos-view .memos-editor-expand:active,
+body.is-mobile .memos-view .memos-editor-top-btn:active,
+body.is-mobile .memos-view .memos-editor-send:active,
+body.is-tablet .memos-view .memos-editor-sidebar-btn:active,
+body.is-tablet .memos-view .memos-editor-search-btn:active,
+body.is-tablet .memos-view .memos-editor-expand:active,
+body.is-tablet .memos-view .memos-editor-top-btn:active,
+body.is-tablet .memos-view .memos-editor-send:active {
+  transform: scale(0.9) !important;
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+body.is-mobile .memos-view .memos-editor-send:active {
+  background-color: rgba(var(--memos-primary-rgb), 0.42) !important;
+}
+body.is-mobile .memos-view .memos-editor-sidebar-btn svg,
+body.is-mobile .memos-view .memos-editor-search-btn svg,
+body.is-mobile .memos-view .memos-editor-top-btn svg,
+body.is-mobile .memos-view .memos-editor-expand svg,
+body.is-mobile .memos-view .memos-editor-send svg,
+body.is-tablet .memos-view .memos-editor-sidebar-btn svg,
+body.is-tablet .memos-view .memos-editor-search-btn svg,
+body.is-tablet .memos-view .memos-editor-top-btn svg,
+body.is-tablet .memos-view .memos-editor-expand svg,
+body.is-tablet .memos-view .memos-editor-send svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+body.is-mobile .memos-view .memos-editor-textarea,
+body.is-tablet .memos-view .memos-editor-textarea {
+  font-size: max(var(--font-text-size), 16px) !important;
+}
+
+/* ── Composer edit flow: no extra chrome; the send button's tooltip is the
+   only edit-mode cue (see MemoEditor.markEditing). ── */
+
+body.is-mobile .memos-view .memos-card-body,
+body.is-mobile .memos-view .memos-card-body .markdown-rendered,
+body.is-mobile .memos-view .memos-card-body .markdown-rendered p,
+body.is-mobile .memos-view .memos-card-body .markdown-rendered li,
+body.is-tablet .memos-view .memos-card-body,
+body.is-tablet .memos-view .memos-card-body .markdown-rendered,
+body.is-tablet .memos-view .memos-card-body .markdown-rendered p,
+body.is-tablet .memos-view .memos-card-body .markdown-rendered li {
+  font-size: var(--font-text-size) !important;
+  line-height: 1.5 !important;
+}
+
+/* 10. 暗色主题半透明 */
+body.theme-dark.is-mobile .memos-view .memos-editor-sidebar-btn,
+body.theme-dark.is-mobile .memos-view .memos-editor-search-btn,
+body.theme-dark.is-mobile .memos-view .memos-editor-top-btn,
+body.theme-dark.is-mobile .memos-view .memos-editor-expand,
+body.theme-dark.is-tablet .memos-view .memos-editor-sidebar-btn,
+body.theme-dark.is-tablet .memos-view .memos-editor-search-btn,
+body.theme-dark.is-tablet .memos-view .memos-editor-top-btn,
+body.theme-dark.is-tablet .memos-view .memos-editor-expand {
+  background: rgba(30, 30, 30, 0.5) !important;
+}
+
+/* ── Editor position offset ────────────────────────────────
+   On desktop the Obsidian view-header sits in the normal flow and
+   already occupies its own space, so the composer needs NO extra top
+   offset — a fixed margin-top here only painted a blank white band
+   above the input box (now 0). On mobile (phone + tablet) the header
+   is a floating overlay — we use the dynamically-measured header
+   height (set by JS as --memos-mobile-header-height) to push the
+   editor below it. Falls back to a sensible default if the JS hasn't
+   measured yet. ── */
+:root {
+  --memos-editor-offset-desktop: 0px;
+  --memos-editor-offset-mobile-fallback: 84px;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
+  margin-top: var(--memos-editor-offset-desktop) !important;
+}
+/* Mobile (phone + tablet): use the dynamically-measured header height.
+   JS sets --memos-mobile-header-height on the view container after
+   measuring the actual Obsidian floating header element. */
+body.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor,
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
+  margin-top: 0 !important;
+}
+
+/* 11. 移动端 memos 视图的顶部标题栏与背景统一
+   红框内的 Obsidian 浮动标题栏默认使用 --background-primary（卡片白），
+   与信息流背景 --background-secondary 不一致；改成与信息流底色一致。
+   状态栏由 iOS 系统管理，这里处理插件可及的标题栏区域。 */
+body.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .view-header,
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .view-header {
+  background-color: var(--memos-bg-soft) !important;
+  border-bottom: none !important;
+  --file-header-background: var(--memos-bg-soft);
+  --file-header-background-focused: var(--memos-bg-soft);
+}
+
+/* 隐藏右上角浮动侧边栏按钮（编辑器内已有） */
+.memos-sidebar-float-btn { display: none !important; }
+
+/* 隐藏侧边栏右上角的关闭按钮 */
+.memos-sidebar-hide-btn { display: none !important; }
+
+/* iPad 端：侧边栏按视口宽度固定比例（横竖屏一致），整体稍小 */
+body.is-tablet .memos-sidebar,
+body.is-tablet .memos-view .memos-sidebar {
+  width: 32vw !important;
+  min-width: 250px !important;
+  max-width: 320px !important;
+}
+
+/* iPad 端：卡片区域固定最大宽度并居中。
+   侧边栏隐藏时不会变得更宽，横屏时保持正常比例 */
+body.is-tablet .memos-view .memos-feed,
+body.is-tablet .memos-view .memos-main .memos-feed {
+  max-width: 780px !important;
+  width: 100% !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+/* 12. 桌面端移除输入框上方空白：彻底隐藏 feed 标题栏，并取消固定偏移 */
+.memos-feed-header {
+  display: none !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
+  margin-top: 0 !important;
+}
+
+.memos-feed {
+  padding-top: 8px !important;
+}
+
+/* 13. 三端统一输入框间距。
+   根因：CM6 的 .cm-gutters 在左侧占位，导致左右间距不对称。
+   解决：隐藏 gutter，所有平台统一用 .cm-content 的 padding 控制间距。 */
+.memos-editor-native .cm-gutters {
+  display: none !important;
+}
+.memos-editor-native .cm-scroller {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* 14. 桌面端编辑器操作按钮图标缩小（保持移动端 18px 不变） */
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-expand svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-send svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-search-btn svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-sidebar-btn svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-top-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   15. Memo references — short in-body links + out/in footer
+   ═══════════════════════════════════════════════════════════ */
+
+/* Dark theme: brighter teal so inlinks stay legible on dark bg. */
+.theme-dark .memos-view {
+  --memos-inlink-rgb: 45, 212, 191;
+}
+
+/* ── In-body [[Memos/….canvas#<id>]] links, rendered as a short "memo" ── */
+.memos-card-body a.memos-memo-link {
+  color: var(--memos-outlink);
+  background: rgba(var(--memos-outlink-rgb), 0.09);
+  border-radius: 5px;
+  padding: 0 5px;
+  margin: 0 1px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.memos-card-body a.memos-memo-link:hover {
+  background: rgba(var(--memos-outlink-rgb), 0.17);
+  text-decoration: none;
+}
+/* In-body memo link whose target was deleted: gray, struck-through, non-
+   interactive — the same "broken" treatment as the footer ref chips. */
+.memos-card-body a.memos-memo-link.memos-memo-link-broken {
+  color: var(--memos-text-faint) !important;
+  background: var(--memos-bg-muted) !important;
+  text-decoration: line-through !important;
+  text-decoration-color: var(--memos-text-faint) !important;
+  font-weight: 400;
+  cursor: default;
+}
+.memos-card-body a.memos-memo-link.memos-memo-link-broken:hover {
+  background: var(--memos-bg-muted) !important;
+  text-decoration: line-through !important;
+}
+
+/* ── Outlink / inlink footer at the bottom of each card ─────────── */
+.memos-card-refs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--memos-border);
+}
+.memos-refs-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  width: 100%;
+}
+.memos-refs-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.memos-refs-label-icon { display: inline-flex; align-items: center; }
+.memos-refs-label-icon svg { width: 13px; height: 13px; }
+.memos-refs-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.memos-ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 2px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.memos-ref-chip-time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 600;
+  opacity: 0.95;
+}
+.memos-ref-chip-snippet {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+/* 出链（引用）：独立蓝色，与主题色绿/入链青区分 */
+.memos-refs-out .memos-refs-label { color: var(--memos-outlink); }
+.memos-refs-out .memos-ref-chip {
+  color: var(--memos-outlink);
+  background: rgba(var(--memos-outlink-rgb), 0.08);
+  border-color: rgba(var(--memos-outlink-rgb), 0.18);
+}
+.memos-refs-out .memos-ref-chip:hover {
+  background: rgba(var(--memos-outlink-rgb), 0.16);
+  border-color: rgba(var(--memos-outlink-rgb), 0.34);
+}
+/* 入链（被引用）：青绿色，与出链区分 */
+.memos-refs-in .memos-refs-label { color: rgb(var(--memos-inlink-rgb)); }
+.memos-refs-in .memos-ref-chip {
+  color: rgb(var(--memos-inlink-rgb));
+  background: rgba(var(--memos-inlink-rgb), 0.08);
+  border-color: rgba(var(--memos-inlink-rgb), 0.18);
+}
+.memos-refs-in .memos-ref-chip:hover {
+  background: rgba(var(--memos-inlink-rgb), 0.16);
+  border-color: rgba(var(--memos-inlink-rgb), 0.34);
+}
+/* 失效引用：目标笔记已删除。灰色、虚线边、不可点击，覆盖出链蓝色。 */
+.memos-refs-row .memos-ref-chip.memos-ref-chip-broken {
+  color: var(--memos-text-faint) !important;
+  background: var(--memos-bg-muted) !important;
+  border-color: var(--memos-border) !important;
+  border-style: dashed;
+  cursor: default;
+}
+.memos-refs-row .memos-ref-chip.memos-ref-chip-broken:hover {
+  background: var(--memos-bg-muted) !important;
+  border-color: var(--memos-border) !important;
+}
+
+/* ── Scroll-into-view flash when navigating to a card ───────────── */
+.memos-card.memos-card-flash {
+  animation: memos-card-flash 0.8s ease-out;
+}
+@keyframes memos-card-flash {
+  0%   {
+    box-shadow: 0 0 0 6px rgba(var(--memos-primary-rgb), 0.5),
+                inset 0 0 24px rgba(var(--memos-primary-rgb), 0.15);
+    background: rgba(var(--memos-primary-rgb), 0.08);
+  }
+  100% {
+    box-shadow: 0 0 0 6px rgba(var(--memos-primary-rgb), 0),
+                inset 0 0 24px rgba(var(--memos-primary-rgb), 0);
+    background: transparent;
+  }
+}
+
+/* 移动端：摘要更短，避免挤压 */
+.memos-is-mobile .memos-ref-chip-snippet { max-width: 120px; }
+
+/* ── `@` mention popup ──────────────────────────────────────────── */
+/* position:fixed on document.body (JS sets top/left/width from the caret
+   coords of the `@` line). NOTE: this lives OUTSIDE .memos-view, so the
+   plugin's --memos-* tokens don't resolve here — use Obsidian's global
+   theme variables directly (with hard fallbacks), or the popup renders
+   with a transparent background over the editor text. */
+.memos-mention-popup {
+  position: fixed;
+  z-index: 1050;
+  background: var(--background-primary, #ffffff);
+  color: var(--text-normal, #1f2937);
+  border: 1px solid var(--background-modifier-border, #e5e7eb);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 12px 32px rgba(0, 0, 0, 0.18);
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.memos-mention-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.memos-mention-item.is-selected,
+.memos-mention-item:hover {
+  background: var(--background-modifier-hover, rgba(0, 0, 0, 0.05));
+}
+.memos-mention-time {
+  flex: 0 0 auto;
+  color: var(--text-faint, #9ca3af);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* `@@` create row — a single action item, tinted with the accent. */
+.memos-mention-create .memos-mention-snippet {
+  color: var(--memos-primary, #07c160);
+  font-weight: 500;
+}
+.memos-mention-create-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  color: var(--memos-primary, #07c160);
+}
+.memos-mention-create-icon svg {
+  width: 14px;
+  height: 14px;
+}
+.memos-mention-snippet {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.memos-mention-empty {
+  padding: 8px 10px;
+  color: var(--text-faint, #9ca3af);
+  font-size: 12px;
+}
+
+/* ── Tag autocomplete popup ──────────────────────────────── */
+.memos-tag-suggest-popup {
+  position: fixed;
+  z-index: 1050;
+  background: var(--background-primary, #ffffff);
+  color: var(--text-normal, #1f2937);
+  border: 1px solid var(--background-modifier-border, #e5e7eb);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 12px 32px rgba(0, 0, 0, 0.18);
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.memos-tag-suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.memos-tag-suggest-item.is-selected,
+.memos-tag-suggest-item:hover {
+  background: var(--background-modifier-hover, rgba(0, 0, 0, 0.05));
+}
+.memos-tag-suggest-tag {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--memos-primary, #07c160);
+}
+.memos-tag-suggest-count {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--text-faint, #9ca3af);
+  font-variant-numeric: tabular-nums;
+}
+.memos-tag-suggest-empty {
+  padding: 8px 10px;
+  color: var(--text-faint, #9ca3af);
+  font-size: 12px;
+}
+
+/* Pool editor holder lives off-screen; keep it invisible even if the inline
+   style attribute is stripped. */
+.memos-editor-pool-holder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ── Settings tab ───────────────────────────────────────────────────
+   Rendered inside the app's settings modal (OUTSIDE .memos-view), so
+   these rules use Obsidian's global theme vars + the brand green. */
+
+/* 中文 / EN segmented switch — a pill track with a sliding solid
+   active segment. */
+.memos-lang-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 9px;
+  background: var(--background-secondary);
+}
+.memos-lang-btn {
+  margin: 0;
+  padding: 4px 14px;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.memos-lang-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.memos-lang-btn.active {
+  background: var(--memos-accent, #07c160);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(var(--memos-accent-rgb, 7, 193, 96), 0.4);
+}
+
+/* Group headers — small-caps label with an accent tick bar, breaking the
+   flat setting list into scannable sections. */
+.memos-settings-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 30px 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.memos-settings-section::before {
+  content: '';
+  width: 3px;
+  height: 13px;
+  border-radius: 2px;
+  background: var(--memos-accent, #07c160);
+}
+
+/* Storage-format footnote card. */
+.memos-settings-note {
+  margin: 12px 0 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* ── Accent color picker (Appearance section) ────────────── */
+/* Control column: preset swatches on top, custom color picker below,
+   both right-aligned to sit inside the Setting's control area. */
+.memos-accent-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.memos-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.memos-swatch {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: none !important;
+  position: relative;
+  transition: transform 0.12s ease;
+}
+.memos-swatch:hover {
+  transform: scale(1.12);
+}
+/* The active ring uses currentColor (the JS sets style.color = the hex),
+   so the ring always matches the chip's own accent. */
+.memos-swatch.active {
+  box-shadow:
+    0 0 0 2px var(--background-primary),
+    0 0 0 4px currentColor !important;
+}
+.memos-color-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.memos-color-input input[type='color'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+.memos-color-input input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+.memos-color-input input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+.memos-color-input-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Button row in confirm modals (delete memo, etc.). */
+.memos-modal-actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	margin-top: 16px;
+}
+
+/* "Back to top" button hidden until the feed scrolls down. */
+.memos-editor-top-btn.is-hidden {
+	display: none;
+}

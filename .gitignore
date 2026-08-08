@@ -1,9 +1,7 @@
 # Dependencies
 node_modules/
 
-# Build output (Obsidian loads these from releases, not git)
-main.js
-styles.css
+# Source maps
 *.map
 
 # Obsidian vault data
