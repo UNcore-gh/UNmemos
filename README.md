@@ -4,10 +4,6 @@ A faithful [Memos](https://github.com/usememos/memos)-inspired flash-capture plu
 
 > Part of the **UN series** by [UNcore](https://github.com/UNcore-gh). ⚡ ~20ms load time — capture ideas before you even finish thinking.
 
-![UNmemos Main View](images/screenshot.png)
-
-<!-- [![Download from Community Plugins](https://img.shields.io/badge/Obsidian-Community_Plugins-green)](obsidian://show-forum-plugin?id=unmemos) -->
-
 ## ✨ Features
 
 | Feature | Description |
@@ -50,8 +46,6 @@ No accounts. No cloud. No background processes.
 # 中文说明
 
 **UNmemos** 是一款受 [Memos](https://github.com/usememos/memos) 和 flomo 启发的闪念速记插件，专为 Obsidian 用户打造。**随手一条想法，秒存时间线——所有数据都以 Obsidian 原生 Canvas 文件保存。**
-
-![UNmemos 主视图](images/screenshot.png)
 
 > ✅ 已上架 Obsidian 社区插件市场，免费下载使用
 
@@ -125,46 +119,6 @@ Type `@` in **any** editor context to reference existing memos:
 - Use `@@name` to quickly create a new memo and link it in one step
 
 The `@` syntax works everywhere in Obsidian — not just inside UNmemos views.
-
-## Screenshots
-
-### Desktop
-![Desktop View](images/desktop.png)
-
-### Tablet (Input collapsed / expanded)
-| Collapsed | Expanded |
-|-----------|----------|
-| ![Tablet Closed](images/tablet-closed.png) | ![Tablet Open](images/tablet-open.png) |
-
-### Mobile (Input collapsed / expanded)
-| Collapsed | Expanded |
-|-----------|----------|
-| ![Mobile Closed](images/mobile-closed.jpg) | ![Mobile Open](images/mobile-open.jpg) |
-
-### Key Features
-| Canvas Storage | @ Mention Picker | @@ Create Card | Global Syntax |
-|----------------|------------------|----------------|---------------|
-| ![Canvas](images/canvas-storage.png) | ![Mention](images/mention-picker.png) | ![CreateCard](images/create-card.png) | ![Global](images/global-syntax.png) |
-
-### Organization Tools
-| Tags & Filters | Pinned & Starred | Native Links | Performance |
-|----------------|------------------|--------------|-------------|
-| ![Tags](images/tags-filters.png) | ![Pinned](images/pinned-starred.png) | ![Links](images/native-links.png) | ![Performance](images/performance.png) |
-
-## Development
-
-```bash
-npm install
-npm run dev     # esbuild watch mode → syncs to test vault
-npm run build   # tsc strict typecheck + esbuild production bundle
-npm run lint    # ESLint (obsidianmd rules)
-```
-
-Build outputs (`main.js`, `styles.css`, `manifest.json`) land at the plugin root. Copy into your vault's plugin folder and reload Obsidian to test.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
 ## License
 
