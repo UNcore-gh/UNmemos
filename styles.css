@@ -3609,24 +3609,26 @@ body.theme-dark.is-tablet .memos-view .memos-editor-expand {
    already occupies its own space, so the composer needs NO extra top
    offset — a fixed margin-top here only painted a blank white band
    above the input box (now 0). On mobile (phone + tablet) the header
-   is a floating overlay — we use the dynamically-measured header
-   height (set by JS as --memos-mobile-header-height) to push the
-   editor below it. Falls back to a sensible default if the JS hasn't
-   measured yet. ── */
+   is a floating overlay — the JS in adjustFeedPaddingForHeader()
+   measures the floating header buttons' bottom edge (view coordinates)
+   and writes an inline margin-top on .memos-editor so the composer's
+   top border exactly meets the buttons' bottom. These rules must NOT
+   use !important, otherwise the inline style can never take effect.
+   ── */
 :root {
   --memos-editor-offset-desktop: 0px;
   --memos-editor-offset-mobile-fallback: 84px;
 }
 
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
-  margin-top: var(--memos-editor-offset-desktop) !important;
+  margin-top: var(--memos-editor-offset-desktop);
 }
-/* Mobile (phone + tablet): use the dynamically-measured header height.
-   JS sets --memos-mobile-header-height on the view container after
-   measuring the actual Obsidian floating header element. */
+/* Mobile (phone + tablet): the floating header overlays the content,
+   so the composer's top edge is positioned by JS (inline margin-top).
+   No !important here — inline style must be able to override this. */
 body.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor,
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 /* 11. 移动端 memos 视图的顶部标题栏与背景统一
@@ -3671,11 +3673,115 @@ body.is-tablet .memos-view .memos-main .memos-feed {
 }
 
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 .memos-feed {
   padding-top: 8px !important;
+}
+
+/* 14. 移动端(手机)主窗口浮动标题栏处理:
+   ① 压制 Obsidian 的内容区顶部预留(.view-content 的 inline
+   margin-top ~91px),输入框与悬浮按钮的对齐由 JS 测量并写入
+   .memos-editor 的 margin-top 完成;
+   ② 强制浮动标题栏在键盘弹出时保持可见(Obsidian 默认会把它
+   滑出隐藏)——按钮不消失,基准线持续可测,输入框不动。
+   注意:.view-header 与 .workspace-leaf-content 的层级关系随
+   Obsidian 版本而异(实测存在后代/兄弟两种结构),因此强制
+   可见规则同时覆盖两种写法。侧边栏/抽屉里的视图由第 15 节的
+   更高特异性规则隐藏,不受此节影响。 */
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"] {
+  padding-top: 0 !important;
+}
+body.is-phone .memos-view {
+  margin-top: 0 !important;
+}
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"] .view-header {
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+body.is-phone .workspace-split.mod-vertical.mod-root
+  .workspace-leaf:has(> .workspace-leaf-content[data-type="memos-for-obsidian-view"])
+  > .view-header {
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+/* ③ composer 的 CM6 graft 会让 Obsidian 把临时文件当作 active 文档,
+   浮动标题栏因此显示临时文件名(memos-temp-editor-xxx)与字数统计
+   (如 "0 个词, 0 个字符")。隐藏标题与统计,保留两侧悬浮按钮。
+   类名覆盖 Obsidian 各版本的标题/统计容器(实测多版本结构不同)。 */
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header .view-header-title-container,
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header .view-header-title,
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header .view-header-subtitle,
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header .view-header-info,
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header .word-count,
+body.is-phone .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header .document-stats {
+  display: none !important;
+}
+/* ④ 兄弟结构版本(:has() 兜底):部分 Obsidian 版本中 view-header 是
+   .workspace-leaf 的直接子元素(与 leaf-content 平级),后代选择器 ③
+   不命中——同强制可见规则一样用 :has() 覆盖两套结构。 */
+body.is-phone
+  .workspace-split.mod-vertical.mod-root
+  .workspace-leaf:has(
+    > .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  )
+  > .view-header
+  :is(
+    .view-header-title-container,
+    .view-header-title,
+    .view-header-subtitle,
+    .view-header-info,
+    .word-count,
+    .document-stats
+  ) {
+  display: none !important;
+}
+
+/* 16. 移动端侧边栏/抽屉隐藏临时文件统计信息:grafted CM6 被
+   claimMobileActiveEditor 后 Obsidian 把临时文件当 active 文档,
+   在移动端抽屉/工具栏区域显示文件名+字数+同步勾。编辑器使用
+   唯一命名(memos-temp-editor-N)后文件名不再友好,一并隐藏标题。
+   仍隐藏字数/统计。 */
+body.is-phone .workspace-drawer .view-header-info,
+body.is-phone .workspace-drawer .word-count,
+body.is-phone .workspace-drawer .document-stats {
+  display: none !important;
+}
+body.is-phone .workspace-drawer
+  .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header-title-container,
+body.is-phone .workspace-drawer
+  .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header-title {
+  display: none !important;
+}
+
+/* 15. 移动端抽屉(侧边栏)场景:不需要页首与悬浮按钮,输入框顶到
+   抽屉顶部。JS 检测到抽屉时同时给 .workspace-leaf 加
+   memos-leaf-in-drawer、给 .memos-view 加 memos-in-drawer
+   (见 view.ts adjustFeedPaddingForHeader);CSS 用三个不同
+   结构/特异性选择器覆盖,任何 Obsidian 版本都能命中隐藏。 */
+body.is-phone .workspace-drawer
+  .workspace-leaf-content[data-type="memos-for-obsidian-view"]
+  .view-header {
+  display: none !important;
+}
+body.is-phone .workspace-leaf.memos-leaf-in-drawer > .view-header {
+  display: none !important;
+}
+body.is-phone .memos-view.memos-in-drawer .view-header {
+  display: none !important;
 }
 
 /* 13. 三端统一输入框间距。
@@ -3923,56 +4029,6 @@ body.is-tablet .memos-view .memos-main .memos-feed {
   opacity: 0.85;
 }
 .memos-mention-empty {
-  padding: 8px 10px;
-  color: var(--text-faint, #9ca3af);
-  font-size: 12px;
-}
-
-/* ── Tag autocomplete popup ──────────────────────────────── */
-.memos-tag-suggest-popup {
-  position: fixed;
-  z-index: 1050;
-  background: var(--background-primary, #ffffff);
-  color: var(--text-normal, #1f2937);
-  border: 1px solid var(--background-modifier-border, #e5e7eb);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 12px 32px rgba(0, 0, 0, 0.18);
-  max-height: 260px;
-  overflow-y: auto;
-  padding: 4px;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.memos-tag-suggest-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 13px;
-  line-height: 1.4;
-  cursor: pointer;
-}
-.memos-tag-suggest-item.is-selected,
-.memos-tag-suggest-item:hover {
-  background: var(--background-modifier-hover, rgba(0, 0, 0, 0.05));
-}
-.memos-tag-suggest-tag {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-  color: var(--memos-primary, #07c160);
-}
-.memos-tag-suggest-count {
-  flex: 0 0 auto;
-  font-size: 11px;
-  color: var(--text-faint, #9ca3af);
-  font-variant-numeric: tabular-nums;
-}
-.memos-tag-suggest-empty {
   padding: 8px 10px;
   color: var(--text-faint, #9ca3af);
   font-size: 12px;
