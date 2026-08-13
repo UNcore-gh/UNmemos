@@ -3122,9 +3122,12 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
 
 /* Docked into a narrow Obsidian sidebar every pixel counts: the main
    pane's generous 24px gutters would waste a quarter of the dock's
-   width on blank margin around the composer and the cards. */
+   width on blank margin around the composer and the cards. Bottom stays
+   at 0 like the global compact-layout rule (section 6) — a bottom
+   padding here re-introduces the black/white strip under the last card
+   that the global rule was written to kill. */
 .memos-view-compact .memos-feed {
-  padding: 12px 8px 24px;
+  padding: 12px 8px 0;
 }
 
 /* Docked into an Obsidian sidebar (left/right dock) the main-pane
@@ -3140,7 +3143,12 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
 }
 
 /* Some themes pad the leaf container itself — kill any phantom margin
-   so the view truly reaches the dock's edges and bottom. */
+   so the view truly reaches the container's edges and bottom. Covers
+   BOTH docked scenarios (left/right split) and a main-pane tab dragged
+   narrow enough for the compact class (matched via :has()) — otherwise
+   the theme padding shows as a black/white strip under the last card
+   in compact mode. */
+.workspace-leaf-content[data-type="memos-for-obsidian-view"]:has(.memos-view-compact),
 .workspace-split.mod-right-split .workspace-leaf-content[data-type="memos-for-obsidian-view"],
 .workspace-split.mod-left-split .workspace-leaf-content[data-type="memos-for-obsidian-view"] {
   padding: 0;
