@@ -1574,6 +1574,15 @@ body.memos-row-dragging {
   content-visibility: visible !important;
 }
 
+/* Hide Obsidian's "Show page title" inline title inside the grafted editor:
+   the temp file name ("memos-temp-editor-N.md") would display as a heading
+   above the composer content, overlapping the custom placeholder overlay
+   positioned at top:8px/left:14px. Also covers the inline card editor. */
+.memos-editor-native .inline-title,
+.memos-inline-editor-wrap .inline-title {
+  display: none !important;
+}
+
 /* Inline editor wrapper — for editing existing memos */
 .memos-inline-editor-wrap {
   min-height: 80px;
