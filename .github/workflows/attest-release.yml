@@ -1,0 +1,25 @@
+name: Attest release assets
+
+on:
+    release:
+        types: [published]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    id-token: write
+    attestations: write
+
+jobs:
+    attest:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Attest release assets
+              uses: actions/attest@v4
+              with:
+                  subject-path: |
+                      main.js
+                      manifest.json
+                      styles.css
