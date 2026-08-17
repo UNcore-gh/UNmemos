@@ -1535,11 +1535,60 @@ body.memos-row-dragging {
 }
 /* Keep the grafted editor's content anchored to the top-left corner even
    while CM6 is still reconciling its offscreen birth layout; otherwise the
-   first auto-focused caret can paint at the bottom-right of the composer. */
+   first auto-focused caret can paint at the bottom-right of the composer.
+   align-* 一并钉死：只钉 justify-* 时 flex 容器仍可能在交叉轴把内容
+   块居中，空行被推到底部，光标第一帧照样偏下。 */
 .memos-editor-native .cm-scroller,
 .memos-editor-native .cm-contentContainer,
 .memos-editor-native .cm-sizer {
   justify-content: flex-start !important;
+  align-content: flex-start !important;
+  align-items: stretch;
+}
+
+/* 落位稳定期（editor.ts 在 graft 搬入后加 memos-editor-settling，光标
+   坐标收敛后移除）：整个编辑区 visibility 隐藏——上版只藏 .cm-editor，
+   用户环境里闪烁源在 CM6 之外（兜底输入框、首绘脏帧）时拦不住；
+   门控升级到 editorWrap 后，无论闪的是什么元素都画不出来。visibility
+   保留布局，CM6 测量不受影响；内联样式是主力，这里是样式表双保险。 */
+.memos-editor-settling {
+  visibility: hidden !important;
+}
+/* 收敛揭示时的整块淡入：出现过程从「闪现」变为有意的渐显，揭示
+   瞬间即使有残余脏帧，低透明度下也不可感知。位移用独立的
+   translate 属性（不占用 transform），缓动曲线前段快、尾段柔。 */
+.memos-editor-revealed {
+  animation: memos-editor-reveal-in 220ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+@keyframes memos-editor-reveal-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.memos-editor-settling .cm-cursor,
+.memos-editor-settling .cm-cursorLayer,
+.memos-editor-settling .cm-selectionLayer,
+.memos-editor-settling .cm-activeLine,
+.memos-editor-settling .cm-selectionBackground {
+  opacity: 0 !important;
+}
+/* 光标静默期（editor.ts beginCaretQuiet）：揭示后光标/选区/活动行整套
+   继续隐藏，直到用户首次按键/点击或超时才恢复——恢复那一刻几何必然
+   已最终，错误位置的光标物理上画不出来；鼠标悬停在开窗位置时聚焦进
+   来的活动行高亮/选区蓝块也不会「闪」出来。与 settling 规则同套层，
+   但触发时机不同（settling 藏整个编辑区，这里只藏光标层）。 */
+.memos-editor-caret-off .cm-cursor,
+.memos-editor-caret-off .cm-cursorLayer,
+.memos-editor-caret-off .cm-selectionLayer,
+.memos-editor-caret-off .cm-activeLine,
+.memos-editor-caret-off .cm-selectionBackground,
+.memos-editor-caret-off .cm-dropCursor {
+  opacity: 0 !important;
 }
 /* The composer placeholder is our own overlay, pinned to the first text
    line. Hide Obsidian/CM6's built-in placeholder so it can never overlap,
@@ -1565,6 +1614,22 @@ body.memos-row-dragging {
 }
 .memos-editor-native.memos-editor-empty .memos-editor-placeholder {
   display: block;
+}
+/* 幽灵期占位字补位（editor.ts mountFallbackGhost 挂在卡片层）：与真实
+   overlay 同款样式，但不在 .memos-editor-native 里——settle 隐藏期
+   editorWrap 整块 visibility:hidden，真 overlay 跟着藏起来，靠它在卡片层
+   补位，消灭「占位字闪一下」。top/left/width 由 JS 内联对齐真实 overlay。 */
+.memos-editor .memos-editor-ghost-placeholder {
+  position: absolute;
+  z-index: 7;
+  pointer-events: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-faint);
+  font-size: var(--font-text-size);
+  line-height: 1.5;
+  user-select: none;
 }
 .memos-editor-textarea::placeholder {
   color: transparent;
@@ -4328,14 +4393,18 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
   transform: scale(0.92);
 }
 
-/* Card collapse toggle: ghost — no border, no shadow, faint chevron. */
+/* 卡片折叠按钮：纯图标 ghost——无边框无底色无阴影，只留一个
+   chevron；悬停浮出轻微高亮底。!important 压制 Obsidian 核心对
+   所有 <button> 的统一塑形与下方 composer 按钮组的误伤规则。 */
 .memos-card-toggle {
-  border: none;
-  box-shadow: none;
-  background: transparent;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 .memos-card-toggle:hover {
-  background: var(--background-modifier-hover);
+  background: var(--background-modifier-hover) !important;
+  background-color: var(--background-modifier-hover) !important;
   color: var(--memos-text);
 }
 
@@ -4409,8 +4478,7 @@ body.theme-dark {
 .memos-editor-top-btn,
 .memos-editor-sidebar-btn,
 .memos-editor-expand,
-.memos-card-menu,
-.memos-card-toggle {
+.memos-card-menu {
   background-color: var(--memos-surface) !important;
   border: 1px solid var(--memos-border) !important;
   box-shadow: none !important;
@@ -4420,8 +4488,7 @@ body.theme-dark {
 .memos-editor-top-btn:hover,
 .memos-editor-sidebar-btn:hover,
 .memos-editor-expand:hover,
-.memos-card-menu:hover,
-.memos-card-toggle:hover {
+.memos-card-menu:hover {
   background-color: var(--memos-surface-hover) !important;
   border-color: var(--memos-border-hover) !important;
 }
@@ -4528,4 +4595,497 @@ body.theme-dark {
 .memos-editor-native .cm-line:not(.cm-active) .cm-formatting-list-ul,
 .memos-inline-editor-wrap .cm-line:not(.cm-active) .cm-formatting-list-ul {
   display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Quick capture — 快速记录浮动输入框
+   ═══════════════════════════════════════════════════════════ */
+
+/* 无按钮模式（.memos-editor-no-actions，由 MemoEditor 的
+   showActions: false 设置）：去掉底部 44px 的发送按钮预留，
+   textarea/CM6 内容收回到底部 8px，输入区占满整个盒子。
+   必须位于上方 .memos-editor 基础规则之后（文件末尾追加）。 */
+.memos-editor-no-actions .memos-editor-native {
+  padding-bottom: 8px;
+}
+.memos-editor:not(.memos-editor-is-expanded).memos-editor-no-actions
+  .memos-editor-native
+  .memos-editor-textarea {
+  bottom: 8px;
+}
+
+/* Quick-capture Modal：body 层级的 modal，位于 .memos-view 之外，
+   因此 --memos-* token 必须在此复制（与 .memos-filter-panel 同一先例）。
+   额外补上 .memos-editor 自身依赖的 --memos-card / --memos-card-shadow。 */
+/* Quick-capture Modal：紧凑版——取消外层 padding，直接在 contentEl 上显示输入框，
+   去掉多余的边框嵌套；固定在屏幕偏上方。 */
+.memos-quick-capture {
+  --memos-primary: var(--memos-accent, #07c160);
+  --memos-primary-hover: var(--memos-accent-hover, #06ad56);
+  --memos-primary-fg: #ffffff;
+  --memos-primary-rgb: var(--memos-accent-rgb, 7, 193, 96);
+
+  --memos-bg: var(--background-primary, #ffffff);
+  --memos-bg-soft: var(--background-secondary, #f8f9fa);
+  --memos-bg-muted: var(--background-secondary-alt, #f1f3f4);
+
+  --memos-text: var(--text-normal, #1f2937);
+  --memos-text-muted: var(--text-muted, #6b7280);
+  --memos-text-faint: var(--text-faint, #9ca3af);
+
+  --memos-border: var(--background-modifier-border, #e5e7eb);
+  --memos-border-hover: var(--background-modifier-border-hover, #d1d5db);
+  --memos-hover: var(--background-modifier-hover, rgba(0,0,0,0.04));
+
+  --memos-card: var(--background-primary, #ffffff);
+  --memos-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04);
+
+  --memos-radius-sm: 6px;
+  --memos-radius: 10px;
+  --memos-radius-lg: 14px;
+
+  --memos-danger: var(--text-error, #ef4444);
+}
+
+/* 精简版弹窗：modal 本体透明无边框（消除双矩形），宽度/位置由 JS 控制。
+   唯一的矩形边框来自内部 .memos-editor（自带 border/radius/shadow）。
+   注意：钩子类由 JS 直接加在 .modal 上（memos-quick-capture-modal），
+   不用 :has()——旧版 Obsidian 的 Chromium 不支持 :has，
+   会导致整条规则被丢弃（白底/默认宽/叉号残留等连锁问题）。 */
+.modal.memos-quick-capture-modal {
+  width: min(560px, 92vw);
+  min-width: 0;
+  position: fixed;
+  transform: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  /* modal 自带的圆角 + overflow:auto 会把内层卡片的边框转角
+     裁掉（表现为底角“被橡皮擦掉”）。卡片自己带圆角，这里归零。 */
+  border-radius: 0 !important;
+  overflow: visible !important;
+  max-height: none;
+}
+
+/* 出现动画：onOpen 即加类，框体打开就整框淡入（opacity + 轻微
+   上移）——快速记录的感知延迟归零，兜底输入框第一帧即可用；
+   CM6 交接在编辑区自己的门控隐藏期里完成。时长刻意压到 140ms、
+   位移 4px：快速记录场景里出现感越接近「瞬现」越好，长了会被
+   感知为「慢」。位移必须用独立的 translate 属性而不是 transform：
+   上方规则用 transform:none!important 压制 Obsidian 的居中位移，
+   !important 会赢过 keyframe 里的 transform，动画会被压平。 */
+.modal.memos-quick-capture-appear {
+  animation: memos-quick-capture-appear 140ms cubic-bezier(0.16, 0.7, 0.3, 1);
+}
+@keyframes memos-quick-capture-appear {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* 背景处理：默认不模糊且不暗化——背板保持与打开弹窗前完全一致，
+   快速记录不打断当前视线。设置中可开启模糊（仍不暗化）。 */
+.modal-container.memos-quick-capture-blur-off {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.modal-container.memos-quick-capture-blur-off .modal-bg {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: transparent !important; /* 不暗化，与背景融为一体 */
+}
+.modal-container.memos-quick-capture-blur-on {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+.modal-container.memos-quick-capture-blur-on .modal-bg {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  background-color: transparent !important;
+}
+
+/* 拖拽已改为按钮行里的图标按钮（.memos-quick-capture-drag，见下方），
+   旧的顶部拖拽条与 header 标题区已废弃移除。 */
+
+/* 自动标签提示：位于按钮行中间（左侧拖拽/盯住 与 右侧发送之间），
+   小药丸样式，一眼看到保存时会自动追加 #tag。 */
+.memos-quick-capture-tags {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0 auto;
+  min-width: 0;
+  max-width: 60%;
+  cursor: default;
+}
+.memos-quick-capture-tag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 2px 10px;
+  border-radius: var(--memos-radius-sm);
+  background: rgba(var(--memos-primary-rgb), 0.1);
+  color: var(--memos-primary);
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 快速记录编辑器容器 — 去掉多余 padding，输入框自带边框/圆角。 */
+.memos-quick-capture-editor {
+  padding: 0;
+}
+
+/* 框体自适应：高度随内容自然增长（content-driven），上限放宽到
+   56vh（主界面 composer 仍保持 280px 上限不受影响）；宽度随窗口
+   92vw 自适应。超过上限后编辑器内部滚动。 */
+.memos-quick-capture .memos-editor-native {
+  max-height: min(56vh, 640px);
+}
+.memos-quick-capture .memos-editor-textarea {
+  max-height: min(56vh, 640px);
+}
+
+/* 边框不透明修复：毛玻璃/半透明主题下 --background-modifier-border
+   是 rgba 半透明色，弹窗背景又完全透明，导致输入框边框线（尤其
+   底部两角）发虚。这里用不透明的混色边框（文字色混卡片底色，
+   两者均为实色），深浅色主题都能自适应。
+   阴影同步加深：背板默认不暗化不模糊，卡片若只有浅阴影会和
+   背景面板融为一体——双层软阴影把框体托起来，更有质感。
+   边框/阴影加过渡：开窗即自动聚焦会让边框瞬间变深，没有过渡时
+   会被感知为一次「闪亮」（鼠标恰好悬在开窗位置时尤其明显）。 */
+.memos-quick-capture .memos-editor {
+  border-color: var(--memos-border);
+  border-color: color-mix(in srgb, var(--memos-text) 16%, var(--memos-card));
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.03),
+    0 6px 20px rgba(15, 23, 42, 0.10),
+    0 18px 48px rgba(15, 23, 42, 0.10);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.memos-quick-capture .memos-editor:has(.cm-focused) {
+  border-color: var(--memos-border-hover);
+  border-color: color-mix(in srgb, var(--memos-text) 28%, var(--memos-card));
+}
+
+/* 右上角关闭叉号：保留 Obsidian 默认按钮，但收纳进输入框卡片
+   右上角——尺寸/内边距调小，整体再往下移一点，让悬停高亮
+   圆角矩形完全落在框体内部（避开顶部圆角区），不再溢出框外。
+   选择器前加 body 提高特异性，位置/尺寸全部 !important：
+   Composer 主题有 body.styled-scrollbars .modal-close-button 等
+   更高特异性规则会覆盖我们的偏移，必须硬性压制。 */
+body .modal.memos-quick-capture-modal .modal-close-button {
+  position: absolute;
+  top: 11px !important;
+  inset-inline-end: 8px !important;
+  width: 26px !important;
+  height: 26px !important;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  background: transparent;
+  color: var(--memos-text-muted);
+  opacity: 0.9;
+  box-shadow: none;
+  outline: none;
+  overflow: hidden;
+  transition: background 0.15s ease, color 0.15s ease;
+  z-index: 2;
+}
+body .modal.memos-quick-capture-modal .modal-close-button:hover,
+body .modal.memos-quick-capture-modal .modal-close-button:focus-visible {
+  background: var(--memos-hover) !important;
+  color: var(--memos-text);
+  box-shadow: none !important;
+}
+body .modal.memos-quick-capture-modal .modal-close-button svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+}
+
+/* 边框拖拽调节大小的透明热区：右缘 / 底缘 / 右下角。 */
+.memos-quick-capture-resize-e {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  right: -3px;
+  width: 7px;
+  cursor: ew-resize;
+  z-index: 3;
+  touch-action: none;
+}
+.memos-quick-capture-resize-s {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -3px;
+  height: 7px;
+  cursor: ns-resize;
+  z-index: 3;
+  touch-action: none;
+}
+.memos-quick-capture-resize-se {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  z-index: 4;
+  touch-action: none;
+}
+
+/* 调节过尺寸后：编辑器区填满卡片高度（CM6 / fallback textarea 同步拉伸），
+   内容超出时编辑器内部滚动。 */
+.memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-native {
+  max-height: none;
+  min-height: 134px;
+}
+.memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-native .markdown-source-view,
+.memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-native .cm-editor {
+  height: 100%;
+  min-height: 0;
+}
+.memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-textarea {
+  max-height: none;
+}
+
+/* ── 按钮行：全部纳入框体内，与主界面 composer 的按钮布局一致 ──
+   左侧：拖拽 + 盯住（ghost）· 中间：自动标签提示 · 右侧：发送（primary）。
+   内边距与编辑器文字区对齐，位于卡片底部。 */
+.memos-quick-capture-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 10px 8px 10px;
+}
+.memos-quick-capture-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 拖拽按钮 — ghost 风格，按住拖动弹窗（仅桌面端渲染）。
+   !important: Obsidian core styles every <button> with the theme's
+   --interactive-normal (warm brown) at higher specificity than a plain
+   class rule — same reason the main-composer buttons need it. */
+.memos-quick-capture-drag {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: 1px solid var(--memos-border) !important;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--memos-surface) !important;
+  box-shadow: none !important;
+  color: var(--memos-text-muted);
+  cursor: grab;
+  touch-action: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+.memos-quick-capture-drag:hover {
+  background-color: var(--memos-surface-hover) !important;
+  color: var(--memos-text);
+}
+.memos-quick-capture-drag:active {
+  cursor: grabbing;
+}
+.memos-quick-capture-drag svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 盯住按钮 — ghost 风格（与主界面 expand 按钮同款，近白 chip） */
+.memos-quick-capture-pin {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: 1px solid var(--memos-border) !important;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--memos-surface) !important;
+  box-shadow: none !important;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+.memos-quick-capture-pin:hover {
+  background-color: var(--memos-surface-hover) !important;
+  color: var(--memos-text);
+}
+.memos-quick-capture-pin.is-active {
+  color: var(--memos-primary);
+}
+.memos-quick-capture-pin svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 恢复 / 新建浮窗按钮 — 与盯住按钮同款近白 chip */
+.memos-quick-capture-restore,
+.memos-quick-capture-new {
+  width: 28px !important;
+  height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: 1px solid var(--memos-border) !important;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--memos-surface) !important;
+  box-shadow: none !important;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+.memos-quick-capture-restore:hover,
+.memos-quick-capture-new:hover {
+  background-color: var(--memos-surface-hover) !important;
+  color: var(--memos-text);
+}
+
+/* 发送按钮 — 与主界面 send 按钮同款（近白 chip + 绿色图标） */
+.memos-quick-capture-send {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: 1px solid var(--memos-border) !important;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--memos-surface) !important;
+  color: var(--memos-primary) !important;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+.memos-quick-capture-send:hover {
+  background-color: var(--memos-surface-hover) !important;
+  color: var(--memos-primary-hover) !important;
+  box-shadow: none !important;
+}
+.memos-quick-capture-send:active {
+  transform: scale(0.9);
+}
+.memos-quick-capture-send svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Quick Capture Modal — Lint-compliant styles
+   ═══════════════════════════════════════════════════════════ */
+
+/* 隐藏 Obsidian 原生模态关闭按钮（兼容新旧版本） */
+.memos-quick-capture-modal .modal-close-button,
+.memos-quick-capture-modal .modal-header-button {
+  display: none !important;
+}
+
+/* 自绘叉号按钮基础样式 */
+.memos-quick-capture-close {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  inset-inline-end: 8px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--memos-danger, #ef4444) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+}
+
+.memos-quick-capture-close:hover {
+  background: color-mix(in srgb, var(--memos-danger, #ef4444) 12%, transparent) !important;
+  color: var(--memos-danger, #ef4444) !important;
+}
+
+.memos-quick-capture-close svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* 浮动窗口模态外框外观 */
+.memos-quick-capture-modal {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* 浮动窗口卡片容器 */
+.memos-quick-capture-modal .memos-editor {
+  position: relative !important;
 }
