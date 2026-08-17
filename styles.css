@@ -177,8 +177,8 @@
 }
 
 .memos-nav-item.active {
-  background: var(--memos-primary);
-  color: var(--memos-primary-fg);
+  background: rgba(var(--memos-primary-rgb), 0.12);
+  color: var(--memos-primary);
 }
 
 .memos-nav-item.active:hover {
@@ -1125,7 +1125,10 @@ body.memos-row-dragging {
   padding: 0;
   border: none;
   border-radius: 6px;
-  background: transparent;
+  /* !important: Obsidian core button styles would repaint this with the
+     theme's --interactive-normal (warm brown) — it must stay ghost. */
+  background-color: transparent !important;
+  box-shadow: none !important;
   color: var(--memos-text-faint);
   cursor: pointer;
   opacity: 0;
@@ -1151,20 +1154,25 @@ body.memos-row-dragging {
 .memos-fb-add-wrap {
   display: flex;
   align-items: stretch;
+  background-color: var(--memos-surface);
   border: 1px dashed var(--memos-border);
   border-radius: 8px;
   overflow: hidden;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 .memos-fb-add-wrap:hover {
   border-color: var(--memos-primary);
-  background: rgba(var(--memos-primary-rgb), 0.05);
+  background-color: rgba(var(--memos-primary-rgb), 0.05);
 }
 .memos-fb-add {
   flex: 1;
   padding: 4px 9px;
   border: none;
-  background: transparent;
+  /* !important: Obsidian core styles every <button> with the theme's
+     --interactive-normal (warm brown) at higher specificity than a plain
+     class rule — same reason the other panel buttons need it. */
+  background-color: var(--memos-surface) !important;
+  box-shadow: none !important;
   color: var(--memos-text-muted);
   font-size: 11.5px;
   text-align: left;
@@ -1181,8 +1189,8 @@ body.memos-row-dragging {
   width: 24px;
   padding: 0;
   border: none;
-  border-left: 1px dashed var(--memos-border);
-  background: transparent;
+  border-left: 1px solid var(--memos-border);
+  background-color: var(--memos-surface);
   cursor: pointer;
 }
 /* The condition-TYPE picker is a genuine native <select> — the same
@@ -1340,7 +1348,7 @@ body.memos-row-dragging {
 .memos-filter-panel select {
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999999' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 12px 12px;
@@ -1674,6 +1682,7 @@ body.memos-row-dragging {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* 圆角矩形浅色发送键：强调色淡染底 + 强调色图标。 */
   border-radius: var(--memos-radius-sm);
   border: none;
   padding: 0;
@@ -1683,13 +1692,23 @@ body.memos-row-dragging {
   background: var(--memos-primary);
   color: var(--memos-primary-fg);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.12s ease,
+    box-shadow 0.15s ease;
   flex-shrink: 0 !important;
   overflow: visible !important;
+  box-shadow: none;
 }
 
 .memos-editor-send:hover {
-  background: var(--memos-primary-hover);
+  background: rgba(var(--memos-primary-rgb), 0.2);
+  color: var(--memos-primary-hover);
+  box-shadow: none;
+}
+
+.memos-editor-send:active {
+  transform: scale(0.9);
 }
 
 .memos-editor-send svg {
@@ -2028,6 +2047,9 @@ body.is-tablet .memos-view .memos-list .memos-card {
   background: var(--memos-hover);
   color: var(--memos-text);
 }
+.memos-card-menu:active {
+  transform: scale(0.88);
+}
 
 .memos-card-menu:active {
   transform: scale(0.9);
@@ -2044,6 +2066,57 @@ body.is-tablet .memos-view .memos-list .memos-card {
   --p-spacing: 0.35em;
 }
 
+/* ── Long-card auto-collapse ─────────────────────────────────
+   Cards whose content passes the source-line estimate (card.ts) render with
+   .memos-card-collapsed: the markdown area is capped at 300px with a fade to
+   the card background. The toggle is an icon-only button pinned to the card's
+   RIGHT edge (direct card child, flex-end). position:sticky makes it float at
+   the bottom-right of the viewport while an expanded card taller than the
+   screen scrolls, then settle at the card's own bottom-right once the end of
+   the card scrolls into view. */
+.memos-card-body.memos-card-collapsed .markdown-rendered {
+  max-height: 300px;
+  overflow: hidden;
+  position: relative;
+}
+.memos-card-body.memos-card-collapsed .markdown-rendered::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  background: linear-gradient(transparent, var(--memos-card));
+  pointer-events: none;
+}
+.memos-card-toggle {
+  position: sticky;
+  bottom: 10px;
+  align-self: flex-end;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 6px;
+  padding: 0;
+  border: 1px solid var(--memos-border);
+  border-radius: var(--memos-radius-sm);
+  background: var(--memos-card);
+  color: var(--text-faint);
+  cursor: pointer;
+  box-shadow: var(--memos-card-shadow);
+}
+.memos-card-toggle:hover {
+  color: var(--memos-text);
+  border-color: var(--memos-border-hover);
+}
+.memos-card-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+
 .memos-card-body > p {
   margin: 0 0 6px;
 }
@@ -2052,10 +2125,13 @@ body.is-tablet .memos-view .memos-list .memos-card {
   margin-bottom: 0;
 }
 
+/* List vertical margins only — padding / marker spacing is intentionally NOT
+   overridden so Obsidian's native .markdown-rendered cascade (which sets
+   padding-inline-start: var(--list-indent)) passes through unchanged,
+   keeping the card's list rendering identical to a normal reading view. */
 .memos-card-body ul,
 .memos-card-body ol {
   margin: 4px 0 6px;
-  padding-left: 1.5em;
 }
 
 .memos-card-body li {
@@ -2256,15 +2332,15 @@ body.is-mobile .memos-card-body button.copy-code-button {
   z-index: var(--layer-menu, 1000);
   display: flex;
   flex-direction: column;
-  min-width: 172px;
-  padding: 5px;
+  min-width: 176px;
+  padding: 6px;
   gap: 1px;
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.06);
+    0 12px 32px rgba(0, 0, 0, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.07);
   transform-origin: top right;
   animation: memos-dropdown-in 0.14s cubic-bezier(0.2, 0.9, 0.3, 1.15);
 }
@@ -2283,11 +2359,11 @@ body.is-mobile .memos-card-body button.copy-code-button {
 .memos-card-dropdown-item {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   width: 100%;
   text-align: left;
   padding: 7px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-normal);
@@ -2299,6 +2375,11 @@ body.is-mobile .memos-card-body button.copy-code-button {
 
 .memos-card-dropdown-item:hover {
   background: var(--background-modifier-hover);
+}
+
+/* 悬停时图标染上主题强调色，给出轻量的选中反馈。 */
+.memos-card-dropdown-item:hover .memos-card-dropdown-item-icon {
+  color: var(--memos-primary);
 }
 
 .memos-card-dropdown-item:active {
@@ -3279,7 +3360,7 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   gap: 6px;
 }
 
-/* 3. 侧边栏/搜索按钮样式（和展开按钮一致） */
+/* 3. 侧边栏/搜索/回顶按钮：圆角矩形幽灵按钮，悬停浮出淡色底。 */
 .memos-editor-sidebar-btn,
 .memos-editor-search-btn,
 .memos-editor-top-btn {
@@ -3299,7 +3380,7 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   background: transparent;
   color: var(--memos-text-muted);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
   flex-shrink: 0 !important;
   overflow: visible !important;
 }
@@ -3308,6 +3389,11 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
 .memos-editor-top-btn:hover {
   background: var(--memos-hover);
   color: var(--memos-text);
+}
+.memos-editor-sidebar-btn:active,
+.memos-editor-search-btn:active,
+.memos-editor-top-btn:active {
+  transform: scale(0.9);
 }
 .memos-editor-sidebar-btn svg,
 .memos-editor-search-btn svg,
@@ -4204,6 +4290,242 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
 }
 
 /* "Back to top" button hidden until the feed scrolls down. */
-.memos-editor-top-btn.is-hidden {
-	display: none;
+
+/* ═══ Button surface refresh ═════════════════════════════════
+   Shapes stay as the original rounded rectangles (radius-sm); only the
+   SURFACES change. Ghost action buttons (search / sidebar / back-to-top /
+   expand) keep their quiet look with a slightly softer hover. Send swaps
+   its heavy solid fill for a light accent tint + accent icon. The collapse
+   toggle goes borderless ghost. The card dropdown gets a frosted surface
+   with accent-tinted hovers. */
+
+.memos-editor-search-btn:hover,
+.memos-editor-top-btn:hover,
+.memos-editor-sidebar-btn:hover,
+.memos-editor-expand:hover {
+  background: var(--background-modifier-hover);
+  color: var(--memos-text);
+}
+.memos-editor-search-btn:active,
+.memos-editor-top-btn:active,
+.memos-editor-sidebar-btn:active,
+.memos-editor-expand:active {
+  transform: scale(0.92);
+}
+
+/* Send: light accent-tinted surface, accent icon — no heavy solid fill. */
+.memos-editor-send {
+  background: rgba(var(--memos-primary-rgb), 0.12);
+  color: var(--memos-primary);
+  box-shadow: none;
+}
+.memos-editor-send:hover {
+  background: rgba(var(--memos-primary-rgb), 0.2);
+  color: var(--memos-primary-hover);
+  box-shadow: none;
+}
+.memos-editor-send:active {
+  transform: scale(0.92);
+}
+
+/* Card collapse toggle: ghost — no border, no shadow, faint chevron. */
+.memos-card-toggle {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+.memos-card-toggle:hover {
+  background: var(--background-modifier-hover);
+  color: var(--memos-text);
+}
+
+/* Card dropdown: frosted glass surface, accent-tinted hovers. */
+.memos-card-dropdown {
+  background: color-mix(in srgb, var(--background-primary) 86%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 65%, transparent);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.16),
+    0 2px 8px rgba(15, 23, 42, 0.07);
+}
+.memos-card-dropdown-item {
+  border-radius: 8px;
+}
+.memos-card-dropdown-item:hover {
+  background: rgba(var(--memos-primary-rgb), 0.1);
+}
+.memos-card-dropdown-item:hover .memos-card-dropdown-item-icon {
+  color: var(--memos-primary);
+}
+/* Danger item keeps its red treatment regardless of the accent tint above. */
+.memos-card-dropdown-item-danger:hover {
+  background: color-mix(in srgb, var(--text-error, #ef4444) 12%, transparent);
+}
+.memos-card-dropdown-item-danger:hover .memos-card-dropdown-item-icon {
+  color: var(--text-error, #ef4444);
+}
+.memos-card-dropdown-separator {
+  background: color-mix(in srgb, var(--background-modifier-border) 55%, transparent);
+}
+
+
+/* ── Near-white button surfaces (final) ──────────────────────
+   固定的中性近白,不从主题背景派生——暖色主题下不再是"白棕"色。
+   深色主题走独立分支,轻微提亮不刺眼。变量挂在 body 上:下拉菜单
+   挂载在 body,取不到视图容器里的变量。 */
+body {
+  --memos-surface: #fafbfc;
+  --memos-surface-hover: #f2f4f6;
+}
+body.theme-dark {
+  --memos-surface: color-mix(in srgb, var(--background-primary) 84%, #ffffff);
+  --memos-surface-hover: color-mix(in srgb, var(--background-primary) 76%, #ffffff);
+}
+.memos-editor-send {
+  background-color: var(--memos-surface) !important;
+  color: var(--memos-primary) !important;
+  box-shadow: none !important;
+}
+.memos-editor-send:hover {
+  background-color: var(--memos-surface-hover) !important;
+  color: var(--memos-primary-hover) !important;
+}
+/* (merged into the final block below) */
+.memos-card-dropdown {
+  background-color: color-mix(in srgb, var(--memos-surface) 90%, transparent) !important;
+}
+.memos-card-dropdown-item:hover {
+  background: var(--memos-surface-hover);
+}
+
+/* ── Resting near-white chips ────────────────────────────────
+   The action buttons carried NO resting surface (transparent until hover),
+   which read as "the default color never changed". Give them the near-white
+   chip at rest; hover deepens it. !important is required — Obsidian core
+   styles every <button> via higher-specificity selectors that override our
+   plain class rules (same reason .memos-filter-btn needs !important). */
+.memos-editor-search-btn,
+.memos-editor-top-btn,
+.memos-editor-sidebar-btn,
+.memos-editor-expand,
+.memos-card-menu,
+.memos-card-toggle {
+  background-color: var(--memos-surface) !important;
+  border: 1px solid var(--memos-border) !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+.memos-editor-search-btn:hover,
+.memos-editor-top-btn:hover,
+.memos-editor-sidebar-btn:hover,
+.memos-editor-expand:hover,
+.memos-card-menu:hover,
+.memos-card-toggle:hover {
+  background-color: var(--memos-surface-hover) !important;
+  border-color: var(--memos-border-hover) !important;
+}
+.memos-editor-send {
+  border: 1px solid var(--memos-border) !important;
+}
+
+/* ── Extended surface: dropdown / calendar / filter panel ─────
+   Apply the same neutral near-white surface to every UI surface that was
+   showing the warm "浅棕色" from --memos-bg-soft / transparent. */
+
+/* Card ⋯ dropdown items */
+.memos-card-dropdown-item {
+  background-color: var(--memos-surface) !important;
+}
+
+/* Calendar nav (prev/next month) — <button> so needs !important */
+.memos-calendar-nav {
+  background-color: var(--memos-surface) !important;
+  border: 1px solid var(--memos-border) !important;
+}
+
+/* Calendar cells with no heat (level-0) */
+.memos-calendar-cell {
+  background-color: var(--memos-surface);
+}
+
+/* Heatmap cells with no heat (level-0) */
+.memos-lite-heatmap-cell {
+  background-color: var(--memos-surface);
+}
+
+/* Filter panel surface (body-mounted, inherits --memos-surface from body) */
+.memos-filter-panel {
+  background-color: var(--memos-surface);
+}
+
+/* Filter panel select dropdowns (mode / field / operator)
+   Exclude .memos-fb-add-chevron select — it needs transparent bg so the
+   background-image chevron arrow stays visible. */
+/* background-COLOR only: the shared select chevron glyph is a background
+   IMAGE on the same elements — the shorthand would wipe it. */
+.memos-filter-panel select:not(.memos-fb-add-chevron select),
+.memos-fb-kind select,
+.memos-fb-op select {
+  background-color: var(--memos-surface) !important;
+}
+
+/* Filter panel popovers */
+.memos-fb-pop {
+  background-color: var(--memos-surface);
+}
+
+/* Filter popover option rows */
+.memos-fb-pop-item {
+  background-color: var(--memos-surface) !important;
+}
+
+/* Calendar future-date cells (still showing warm bg-soft) */
+.memos-calendar-cell.future {
+  background-color: var(--memos-surface) !important;
+}
+
+/* Filter panel close (×) button */
+.memos-fp-close {
+  background-color: var(--memos-surface) !important;
+  border: 1px solid var(--memos-border) !important;
+}
+
+/* Filter panel footer buttons (保存 / 取消 / 检索) — the color is forced
+   too: 检索 carries Obsidian's .mod-cta (white-on-accent text) which would
+   otherwise sit invisible on the near-white surface. */
+.memos-fp-footer button {
+  background-color: var(--memos-surface) !important;
+  border: 1px solid var(--memos-border) !important;
+  box-shadow: none !important;
+  color: var(--memos-text) !important;
+}
+
+/* Add-condition chevron select: the dropdown-chevron glyph is painted by
+   the shared .memos-filter-panel select background-image rule; keep the
+   box transparent so only that glyph shows against the near-white panel. */
+.memos-fb-add-chevron select {
+  background-color: transparent !important;
+  color: var(--memos-text-muted) !important;
+}
+
+/* Time-condition trigger — was still on the warm bg-soft surface. */
+.memos-fb-time {
+  background-color: var(--memos-surface) !important;
+}
+
+/* Text inputs inside the panel and its popovers (name / value / date). */
+.memos-filter-panel input,
+.memos-fb-pop input {
+  background-color: var(--memos-surface) !important;
+}
+
+/* ── LP parity: hide list syntax on non-cursor lines ──────────
+   Mirrors native Live Preview semantics inside the grafted editors only:
+   the "- [ ]" source syntax collapses on lines the caret is NOT on, so the
+   checkbox sits at the line's left edge exactly like a normal note. The
+   cursor line keeps the syntax visible (native behavior). */
+.memos-editor-native .cm-line:not(.cm-active) .cm-formatting-list-ul,
+.memos-inline-editor-wrap .cm-line:not(.cm-active) .cm-formatting-list-ul {
+  display: none;
 }
