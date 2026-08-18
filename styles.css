@@ -75,6 +75,7 @@
 .memos-search-icon svg,
 .memos-filter-btn svg,
 .memos-card-menu svg,
+.memos-card-open-panel svg,
 .memos-calendar-nav svg,
 .memos-sidebar-hide-btn svg,
 .memos-sidebar-float-btn svg {
@@ -110,6 +111,10 @@
   min-height: 22px !important;
   flex-shrink: 0 !important;
   overflow: visible !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .memos-card-menu svg {
@@ -1402,13 +1407,21 @@ body.memos-row-dragging {
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  /* transition 已移除：重启时自动聚焦触发焦点状态变化，即使属性值相同，
+     transition 仍可能被浏览器视为一次「开始→结束」过渡，产生 150ms
+     的中间帧渲染。蓝色高亮持续约一秒、远超 150ms——但移除 transition
+     后任何属性变化都是瞬间完成，消除动画过渡作为视觉闪烁的载体。 */
 }
 
-/* Focused state — no glow, just a subtle border shift. */
-.memos-editor:has(.cm-focused) {
-  border-color: var(--memos-border-hover);
-  box-shadow: var(--memos-card-shadow);
+/* Focused state — 防止主题通过 :has(.cm-focused) / :focus-within 等
+   选择器改变卡片外观（border/shadow/background）。!important 钉死。 */
+.memos-editor:has(.cm-focused),
+.memos-editor:focus-within,
+.memos-editor.memos-editor-focused {
+  border-color: var(--memos-border) !important;
+  box-shadow: var(--memos-card-shadow) !important;
+  background: var(--memos-card) !important;
+  outline: none !important;
 }
 
 .memos-editor-textarea {
@@ -1417,7 +1430,9 @@ body.memos-row-dragging {
      比 CM6 高 12px，交换时表现为"从大到小"跳变。 */
   min-height: 82px;
   max-height: 280px;
-  padding: 8px 20px;
+  /* padding 与占位字 overlay 位置（top:8/left:14）一致，
+     保证 textarea 阶段和 CM6 阶段文字起始位置完全重合。 */
+  padding: 8px 14px;
   padding-bottom: 36px;
   border: none;
   background: transparent;
@@ -1475,11 +1490,45 @@ body.memos-row-dragging {
   height: 0;
 }
 
-/* Keep only height constraints — do NOT override font-size / line-height /
-   horizontal padding, so text renders exactly like a native note editor. */
-.memos-editor-native .markdown-source-view,
+/* ROOT CAUSE: .memos-editor-native has min-height but NO explicit height.
+   Obsidian core sets `.markdown-source-view { height:100% }`, but per CSS
+   spec §10.5, percentage heights on children of auto-height parents
+   compute to `auto` — the source-view collapses to content size, and
+   the entire internal height chain (cm-editor → cm-scroller → cm-sizer)
+   breaks. CM6 then maps cursor coordinates against a collapsed box,
+   rendering the caret at the bottom-right of the composer.
+   FIX: use position:absolute on .markdown-source-view only, with
+   explicit inset values mirroring .memos-editor-native's padding
+   (8/14/44/14). This pins the source-view to the wrapper's CONTENT
+   BOX (not padding box). Combined with height:auto (to override core's
+   height:100% which would ignore the bottom offset per CSS 2.1 §10.6.4),
+   the source-view gets a DEFINITE height, which makes the internal
+   height chain resolve correctly:
+   source-view(80px definite) → cm-editor(height:100%=80px,flex:1 1)
+   → cm-scroller(flex:1 1 auto=80px) → cm-sizer → content.
+   .cm-editor stays in normal flow (NOT absolutely positioned) so it
+   fills the source-view via height:100% + flex. */
+.memos-editor-native .markdown-source-view {
+  position: absolute !important;
+  top: 8px !important;
+  right: 14px !important;
+  bottom: 44px !important;
+  left: 14px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+/* .cm-editor keeps its core flex layout (height:100%; flex:1 1).
+   With .markdown-source-view now having a definite height, 100%
+   resolves correctly. No need for absolute positioning here.
+   ── 文字换行宽度链 ──
+   .cm-editor 是整条链的根级容器。max-width:100% 确保它不会
+   超出 .markdown-source-view 的宽度；overflow-x:hidden 确保
+   任何子元素溢出都被裁切而非出现水平滚动条。 */
 .memos-editor-native .cm-editor {
-  min-height: 80px;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
 }
 
 /* Keep CM6 content at the top. Clearance for the floating Send
@@ -1488,15 +1537,48 @@ body.memos-row-dragging {
    Phone Obsidian adds `padding-top: var(--view-top-spacing-markdown)` to the
    scroller (safe-area + floating header + 16px), which parks the content at
    the bottom of the input box. We remove both paddings and keep the sizer
-   from being stretched to the full scroller height. */
+   from being stretched to the full scroller height.
+
+   ROOT CAUSE (cursor offset to bottom-right):
+   Obsidian core sets `.cm-sizer { display:flex; flex-direction:column;
+   align-items:stretch; min-height:100% }` and `.cm-contentContainer {
+   flex:1 1 auto; align-items:stretch }`. The `.cm-scroller` is a CM6
+   flex-row container with default `align-items:stretch`, which stretches
+   the sizer to the full scroller height. Per CSS-flex spec §9.4.7,
+   `height:auto` on a flex item with `align-self:stretch` resolves to
+   `stretch` — so our `height:auto!important` alone was a no-op. We must
+   ALSO set `align-items:flex-start` on the scroller AND `align-self:
+   flex-start` on the sizer to break the stretch chain. */
 .memos-editor-native .markdown-source-view .cm-scroller,
-.memos-editor-native .cm-editor .cm-scroller,
-.memos-inline-editor-wrap .cm-editor .cm-scroller {
+.memos-editor-native .cm-editor .cm-scroller {
   min-height: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  /* .memos-editor-native already provides padding (8px 14px 44px 14px) and
+     .markdown-source-view is positioned absolutely inside that content box.
+     Adding padding here would DOUBLE the visual offset (native 8px + scroller
+     8px = 16px instead of the intended 8px). The scroller must have ZERO
+     padding — the visual spacing comes entirely from the native wrapper. */
+  padding: 0 !important;
   justify-content: flex-start !important;
   align-content: flex-start !important;
+  align-items: flex-start !important;
+  /* 禁止 scroller 水平溢出：CM6 的 .cm-scroller 默认 overflow:auto，
+     当 sizer 比 scroller 宽时会出现水平滚动条（“像看 PDF”）。
+     max-width:100% + overflow-x:hidden 双重确保：scroller 永远不超出
+     .cm-editor 宽度，且水平溢出被裁切而非滚动。 */
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+/* Inline editor: .memos-inline-editor-wrap does NOT have wrapper padding,
+   so the scroller provides the visual text-to-edge spacing directly. */
+.memos-inline-editor-wrap .cm-editor .cm-scroller {
+  min-height: 0 !important;
+  padding-top: 8px !important;
+  padding-right: 14px !important;
+  padding-bottom: 0 !important;
+  padding-left: 14px !important;
+  justify-content: flex-start !important;
+  align-content: flex-start !important;
+  align-items: flex-start !important;
 }
 /* Let the scroller fill the editor's min-height so taps anywhere in the
    box land on CM6's own surface — no dead zone below the scroller where
@@ -1515,35 +1597,102 @@ body.memos-row-dragging {
   display: none; /* fully remove from render tree */
 }
 /* Prevent the sizer/content from stretching to the full editor height and
-   pushing the caret to the bottom of the input box. */
+   pushing the caret to the bottom of the input box.
+   `align-self:flex-start` is the KEY override: Obsidian core sets
+   `align-items:stretch` on `.cm-scroller` (flex-row default) which
+   stretches the sizer vertically. Without `align-self:flex-start`,
+   `height:auto!important` on a stretched flex item resolves to `stretch`
+   (per spec §9.4.7) — completely ineffective. `align-self:flex-start`
+   breaks the stretch so `height:auto` can take effect. */
 .memos-editor-native .cm-sizer,
 .memos-inline-editor-wrap .cm-sizer {
   min-height: 0 !important;
   height: auto !important;
+  align-self: flex-start !important;
+  /* ── 文字换行根治方案 ──
+     之前 width:100% 不够强力：在 flex-row 的 .cm-scroller 内，
+     flex item 的宽度由 flex-basis / flex-grow 决定，CM6 可能
+     通过 inline style 设置 flex:none 或具体像素值，导致
+     width:100% 被覆盖。改用 flex:1 1 0% 从 flex 层面强制
+     sizer 填满 scroller 宽度；min-width:0 打破 flex item 的
+     min-content 下限（默认不允许缩小到内容宽度以下）；
+     width:100% + box-sizing:border-box 作为兑底。 */
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 .memos-editor-native .cm-contentContainer,
 .memos-inline-editor-wrap .cm-contentContainer {
   align-items: flex-start !important;
+  align-self: flex-start !important;
+  /* 与 cm-sizer 同理：在 cm-sizer 的 flex-column 内，
+     flex:1 1 0% 确保填满 sizer 宽度。 */
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 .memos-editor-native .cm-content,
 .memos-inline-editor-wrap .cm-content {
   align-self: flex-start !important;
   height: auto !important;
   min-height: 0 !important;
+  /* ── 文字换行关键修复 ──
+     之前用 width:auto 是为了兼容 Obsidian 核心的 width:0。但在
+     .cm-sizer 的 flex-column 内，align-items:stretch 被我们改为
+     flex-start（防止垂直拉伸），导致 children 不再自动填满父级宽度。
+     width:auto 在此上下文中解析为 content-width（内容宽度），
+     长文本会超出容器而不换行。
+     改为 width:100% + max-width:100%：显式填满 sizer 宽度，
+     文字在容器边界处自动换行。box-sizing:border-box 确保
+     任何内边距不会额外撑宽。 */
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   position: relative;
   z-index: 0;
 }
 /* Keep the grafted editor's content anchored to the top-left corner even
    while CM6 is still reconciling its offscreen birth layout; otherwise the
    first auto-focused caret can paint at the bottom-right of the composer.
-   align-* 一并钉死：只钉 justify-* 时 flex 容器仍可能在交叉轴把内容
-   块居中，空行被推到底部，光标第一帧照样偏下。 */
+   align-items:flex-start 是防止 flex 子项在交叉轴被拉伸的关键——
+   只设 align-content 对单行 flex 无效，只设 justify-content 只控制
+   主轴分布。三个属性一起钉死才完整。 */
 .memos-editor-native .cm-scroller,
 .memos-editor-native .cm-contentContainer,
 .memos-editor-native .cm-sizer {
   justify-content: flex-start !important;
   align-content: flex-start !important;
-  align-items: stretch;
+  align-items: flex-start !important;
+}
+
+/* 永久去除编辑器内的活动行高亮块——用户明确要求：「在任何地方都不想
+   看到它」。多重属性叠加确保零可见：display:none 从渲染树剔除，
+   opacity:0 兑底，height:0 压扁，visibility:hidden 兑底；任何单一属性
+   被主题覆盖时仍有其他属性生效。
+   注意：选区高亮（.cm-selectionBackground/.cm-selectionLayer/::selection）
+   已恢复可见——那是「选中文字」的视觉反馈。早期为消除启动期蓝色闪烁
+   把选区整体抹掉，导致 Shift+方向键/鼠标拖选「选区已建立但看不见」。
+   启动闪烁由 settling 机制（.memos-editor-settling + caretGuard）负责，
+   不需要永久隐藏选区。 */
+.memos-editor-native .cm-activeLine,
+.memos-editor-native .cm-activeLineGutter,
+.memos-editor-native .cm-editor .cm-activeLine,
+.memos-inline-editor-wrap .cm-activeLine,
+.memos-inline-editor-wrap .cm-activeLineGutter,
+.memos-inline-editor-wrap .cm-editor .cm-activeLine {
+  display: none !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  visibility: hidden !important;
+}
+/* 压制 CM6 内置主题自带的 activeLine 背景。 */
+.memos-view .cm-activeLine {
+  background-color: transparent !important;
+  background: transparent !important;
 }
 
 /* 落位稳定期（editor.ts 在 graft 搬入后加 memos-editor-settling，光标
@@ -1554,21 +1703,8 @@ body.memos-row-dragging {
 .memos-editor-settling {
   visibility: hidden !important;
 }
-/* 收敛揭示时的整块淡入：出现过程从「闪现」变为有意的渐显，揭示
-   瞬间即使有残余脏帧，低透明度下也不可感知。位移用独立的
-   translate 属性（不占用 transform），缓动曲线前段快、尾段柔。 */
+/* 收敛揭示：直接可见，不做淡入动画。 */
 .memos-editor-revealed {
-  animation: memos-editor-reveal-in 220ms cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-@keyframes memos-editor-reveal-in {
-  from {
-    opacity: 0;
-    translate: 0 4px;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
 }
 .memos-editor-settling .cm-cursor,
 .memos-editor-settling .cm-cursorLayer,
@@ -1577,19 +1713,8 @@ body.memos-row-dragging {
 .memos-editor-settling .cm-selectionBackground {
   opacity: 0 !important;
 }
-/* 光标静默期（editor.ts beginCaretQuiet）：揭示后光标/选区/活动行整套
-   继续隐藏，直到用户首次按键/点击或超时才恢复——恢复那一刻几何必然
-   已最终，错误位置的光标物理上画不出来；鼠标悬停在开窗位置时聚焦进
-   来的活动行高亮/选区蓝块也不会「闪」出来。与 settling 规则同套层，
-   但触发时机不同（settling 藏整个编辑区，这里只藏光标层）。 */
-.memos-editor-caret-off .cm-cursor,
-.memos-editor-caret-off .cm-cursorLayer,
-.memos-editor-caret-off .cm-selectionLayer,
-.memos-editor-caret-off .cm-activeLine,
-.memos-editor-caret-off .cm-selectionBackground,
-.memos-editor-caret-off .cm-dropCursor {
-  opacity: 0 !important;
-}
+
+
 /* The composer placeholder is our own overlay, pinned to the first text
    line. Hide Obsidian/CM6's built-in placeholder so it can never overlap,
    center itself, or drift while the grafted editor settles. */
@@ -1862,12 +1987,31 @@ body.is-tablet .memos-view .memos-editor-is-expanded .memos-editor-textarea {
    editor does.  Only layout rules that don't touch typography live
    below. */
 
-/* Give the compose editor content comfortable padding.  Horizontal padding
-   is generous so text doesn't hug the card edges; vertical is trimmed to
-   keep the compact box short.  !important is required — Obsidian's native
-   `.markdown-source-view.mod-cm6 .cm-content` rule otherwise outranks us. */
-.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-native .cm-content {
+/* ── cm-content padding MUST be 0 for the native editor ──
+   .memos-editor-native already provides padding (8px 14px 44px 14px) and
+   .markdown-source-view is absolutely positioned inside that content box.
+   If .cm-content also had padding, the text would be double-offset from
+   the editor border. CM6's cursor layer is inside .cm-scroller and uses
+   coordsAtPos() (viewport-relative) for positioning, so cm-content padding
+   does NOT affect cursor accuracy — but it MUST be 0 to avoid the visual
+   double-padding that pushes text away from the border. */
+.memos-editor-native .cm-content {
   padding: 0 !important;
+}
+
+/* CM6 编辑器焦点轮廓去除——Obsidian 主题可能在 .cm-focused 上添加
+   outline/box-shadow，在初始化期间表现为可见的高亮边框。
+   同时覆盖 .markdown-source-view.mod-cm6.is-focused 的背景色变化，
+   以及 .cm-focused 的各种主题级高亮效果。 */
+.memos-editor-native .cm-editor.cm-focused,
+.memos-editor-native .cm-editor .cm-focused,
+.memos-editor-native .markdown-source-view.mod-cm6.is-focused,
+.memos-inline-editor-wrap .cm-editor.cm-focused,
+.memos-inline-editor-wrap .cm-editor .cm-focused,
+.memos-inline-editor-wrap .markdown-source-view.mod-cm6.is-focused {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
 }
 
 /* Tighter line spacing for BODY lines in the compact compose box.
@@ -2073,6 +2217,57 @@ body.is-tablet .memos-view .memos-list .memos-card {
   min-height: 12px !important;
 }
 
+/* 「在浮窗中打开」按钮——与 .memos-card-menu 完全同款外形（22px ghost icon），
+   位于 ⋯ 左侧。默认隐藏，hover 时与 ⋯ 一同显现。
+   !important 防压：与 .memos-card-menu 同一策略——Obsidian 核心的
+   button 默认样式和主题可能通过更高特异性覆盖我们的尺寸/颜色。 */
+.memos-card-open-panel {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  --icon-size: 14px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--memos-radius-sm);
+  color: var(--memos-text-muted);
+  background: transparent !important;
+  border: 1px solid var(--memos-border) !important;
+  cursor: pointer;
+  opacity: 0;
+  /* Narrow transition — never `all`, to avoid layout/box-shadow jitter. */
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.08s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.memos-card:hover .memos-card-open-panel {
+  opacity: 1;
+}
+.memos-card-open-panel:hover {
+  background: var(--memos-hover) !important;
+  color: var(--memos-text);
+}
+.memos-card-open-panel:active {
+  transform: scale(0.9);
+  background: var(--memos-bg-muted) !important;
+  color: var(--memos-text);
+}
+.memos-card-open-panel svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
 /* Wrapper spans to protect SVG from flex compression */
 .memos-calendar-nav-wrapper,
 .memos-card-menu-wrapper {
@@ -2095,13 +2290,17 @@ body.is-tablet .memos-view .memos-list .memos-card {
   border-radius: var(--memos-radius-sm);
   color: var(--memos-text-muted);
   background: transparent;
-  border: none;
+  border: 1px solid var(--memos-border) !important;
   cursor: pointer;
   opacity: 0;
   /* Narrow transition — never `all`, to avoid layout/box-shadow jitter. */
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.08s ease;
   flex-shrink: 0;
   overflow: visible;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .memos-card:hover .memos-card-menu {
@@ -3000,6 +3199,10 @@ body.theme-dark .memos-calendar-cell.today {
 .is-mobile .memos-card-menu {
   opacity: 1;
 }
+/* No hover on touch — keep the open-panel button visible too. */
+.is-mobile .memos-card-open-panel {
+  opacity: 1;
+}
 
 /* 16px text inputs stop iOS from zooming the page on focus. */
 .is-mobile .memos-search-input {
@@ -3083,6 +3286,55 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   background: rgba(0, 0, 0, 0.12) !important;
 }
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+/* Mobile: open-panel button gets the same tactile treatment as card-menu. */
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:hover {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:active {
+  transform: scale(0.9) !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+}
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+/* iPad: same tactile treatment for the open-panel button. */
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
+}
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:hover {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:active {
+  transform: scale(0.9) !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+}
+body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel svg {
   width: 18px !important;
   height: 18px !important;
   min-width: 18px !important;
@@ -3351,13 +3603,25 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   flex-shrink: 0 !important;
 }
 
-.memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-menu,
-.memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-menu * {
-  width: auto !important;
-  height: auto !important;
-}
+/* 注意：此前这里有 .memos-card-menu / .memos-card-open-panel 的
+   width:auto!important; height:auto!important 高特异性规则，
+   本意是防 flex 压缩，但副作用是把按钮的 22px 尺寸压成了 auto
+  （缩到内容宽度 14px），且 inline style 的 !important 特异性
+   更高导致两个按钮尺寸不一致。已移除——按钮尺寸由各自的 class
+   规则 + inline style 保证。 */
 
 .memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-menu svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+.memos-view .memos-main .memos-feed .memos-card .memos-card-header .memos-card-open-panel svg {
   width: 14px !important;
   height: 14px !important;
   min-width: 14px !important;
@@ -3380,6 +3644,11 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
 }
 
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel svg {
   width: 14px !important;
   height: 14px !important;
 }
@@ -4676,7 +4945,7 @@ body.theme-dark {
    上方规则用 transform:none!important 压制 Obsidian 的居中位移，
    !important 会赢过 keyframe 里的 transform，动画会被压平。 */
 .modal.memos-quick-capture-appear {
-  animation: memos-quick-capture-appear 140ms cubic-bezier(0.16, 0.7, 0.3, 1);
+  animation: memos-quick-capture-appear 140ms cubic-bezier(0.16, 0.7, 0.3, 1) backwards;
 }
 @keyframes memos-quick-capture-appear {
   from {
@@ -4748,9 +5017,26 @@ body.theme-dark {
 
 /* 框体自适应：高度随内容自然增长（content-driven），上限放宽到
    56vh（主界面 composer 仍保持 280px 上限不受影响）；宽度随窗口
-   92vw 自适应。超过上限后编辑器内部滚动。 */
+   92vw 自适应。超过上限后编辑器内部滚动。
+   快速记录里按钮行在编辑器外部（不在编辑器内浮动），44px 底部
+   padding 是主 composer 的发送按钮预留，这里浪费空间且产生
+   可见空白长条——减到 8px。source-view 的 bottom 同步缩小。 */
 .memos-quick-capture .memos-editor-native {
   max-height: min(56vh, 640px);
+  /* 底部 padding 减到 8px，min-height 同步缩小：
+     content 82 + padding(8+14+8+14)=44 = 98px。否则 134px 的
+     min-height 里有 36px 是底部空白。 */
+  min-height: 98px !important;
+  padding-bottom: 8px !important;
+}
+.memos-quick-capture .memos-editor-native .markdown-source-view {
+  bottom: 8px !important;
+}
+/* 兜底 textarea 也同步缩小 bottom（基值 44px 为主 composer 的
+   发送按钮预留，快速记录里按钮在编辑器外部，bottom 只需 8px）。 */
+.memos-quick-capture .memos-editor:not(.memos-editor-is-expanded)
+  .memos-editor-native .memos-editor-textarea {
+  bottom: 8px;
 }
 .memos-quick-capture .memos-editor-textarea {
   max-height: min(56vh, 640px);
@@ -4775,9 +5061,19 @@ body.theme-dark {
     border-color 0.25s ease,
     box-shadow 0.25s ease;
 }
-.memos-quick-capture .memos-editor:has(.cm-focused) {
-  border-color: var(--memos-border-hover);
-  border-color: color-mix(in srgb, var(--memos-text) 28%, var(--memos-card));
+/* Quick-capture focused state — 与主 composer 同一原则：卡片边框/阴影
+   在任何焦点状态下保持不变，阻止主题级 :has(.cm-focused) 规则产生蓝色
+   高亮闪烁。基础规则 .memos-quick-capture .memos-editor:has(.cm-focused)
+   已被此 !important 覆盖，无害保留。 */
+.memos-quick-capture .memos-editor:has(.cm-focused),
+.memos-quick-capture .memos-editor:focus-within {
+  border-color: color-mix(in srgb, var(--memos-text) 16%, var(--memos-card)) !important;
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.03),
+    0 6px 20px rgba(15, 23, 42, 0.10),
+    0 18px 48px rgba(15, 23, 42, 0.10) !important;
+  background: var(--memos-card) !important;
+  outline: none !important;
 }
 
 /* 右上角关闭叉号：保留 Obsidian 默认按钮，但收纳进输入框卡片
@@ -4852,10 +5148,11 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
 }
 
 /* 调节过尺寸后：编辑器区填满卡片高度（CM6 / fallback textarea 同步拉伸），
-   内容超出时编辑器内部滚动。 */
+   内容超出时编辑器内部滚动。min-height 仍保持 98px（快速记录里
+   底部 padding 是 8px 而非 44px，不需要 134px 的基线）。 */
 .memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-native {
   max-height: none;
-  min-height: 134px;
+  min-height: 98px;
 }
 .memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-native .markdown-source-view,
 .memos-quick-capture-modal.memos-quick-capture-sized .memos-editor-native .cm-editor {
@@ -5085,7 +5382,53 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   max-height: none !important;
 }
 
-/* 浮动窗口卡片容器 */
+/* ── 编辑模式 pointer-events 穿透 ──
+   编辑面板（从卡片「在浮窗中编辑」打开）的用途是参考资料而非强制编辑，
+   用户需要同时滚动卡片列表、点击侧边栏等。但 .modal 是全屏元素
+  （position:fixed; inset:0），即使视觉透明也会拦截所有 pointer 事件。
+   核心穿透逻辑在 JS 的 applyStack() 中通过 inline !important 实现
+  （CSS 规则无法覆盖 inline !important），这里的 CSS 规则作为
+   文档化参考和 JS 未覆盖场景的兜底。 */
+
+/* 编辑模式卡片：确保内部可交互（JS applyStack 设 modal 为 none 后，
+   内部元素需要 auto 才能接收事件）。 */
 .memos-quick-capture-modal .memos-editor {
   position: relative !important;
+  pointer-events: auto !important;
+}
+/* 按钮行（发送/盯住/拖拽等）也需要可交互。position:relative +
+   z-index:3 让按钮行浮在点击激活层（z-index:2）之上——拦截层只
+   覆盖文本区，按钮点击不被拦截。 */
+.memos-quick-capture-modal .memos-quick-capture-actions {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto !important;
+}
+/* 自绘关闭叉号需要可交互 */
+.memos-quick-capture-modal .memos-quick-capture-close {
+  pointer-events: auto !important;
+}
+/* 边框拖拽调节手柄需要可交互 */
+.memos-quick-capture-modal [class*="memos-quick-capture-resize"] {
+  pointer-events: auto !important;
+}
+
+/* ── 编辑模式点击激活层 ──
+   编辑面板打开时不进入编辑模式（无光标、不聚焦）。在卡片内部覆盖一层
+   透明拦截层，用户按下文本区域后移除拦截层并聚焦编辑器。
+   z-index 分层（v0.4.95 无效的根因）：拦截层曾用 z-index:10 盖住整个
+   卡片——按钮行（无 z-index）和关闭叉号（z-index:5）全被压在下面，
+   点击保存/叉号会先命中拦截层导致进入编辑模式。现在 z-index:2 只盖住
+   CM6 文本层（.cm-content z-index:0），按钮行抬到 3、叉号保持 5，
+   都浮在拦截层之上，点击照常可用。
+   cursor:text 提示用户点击后可编辑。 */
+.memos-quick-capture-click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  cursor: text;
+  background: transparent;
 }
