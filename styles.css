@@ -5281,13 +5281,13 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   overflow: visible !important;
 }
 .memos-quick-capture-modal.memos-quick-capture-phone .memos-editor {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
 }
 .memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-native {
-  flex: 1 1 auto;
+  flex: 1 1 auto !important;
   min-height: 0 !important;
-  max-height: none;
+  max-height: none !important;
 }
 .memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-native .markdown-source-view,
 .memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-native .cm-editor {
