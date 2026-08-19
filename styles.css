@@ -750,6 +750,16 @@ body.memos-row-dragging {
   font-size: 12px;
 }
 
+/* Dark mode: Obsidian's --background-modifier-border is nearly the same
+   shade as the panel background, so every control outline (and the
+   inputs below, which inherit Obsidian's global style) vanishes. Override
+   the token with a fixed translucent white so borders stay visible in
+   ANY dark theme; light mode keeps the theme default. */
+body.theme-dark .memos-filter-panel {
+  --memos-border: rgba(255, 255, 255, 0.22);
+  --memos-border-hover: rgba(255, 255, 255, 0.34);
+}
+
 /* Phone: the panel is a body-mounted fixed overlay (see filter-panel.ts
    reposition) that breaks out of the narrow drawer — no inline variant. */
 
@@ -812,12 +822,15 @@ body.memos-row-dragging {
 /* Name field inside the footer row — stretches to fill the leftover
    space before the 保存 / 取消 / 检索 buttons. Obsidian's default input
    is chunkier than the panel's other controls, so it's brought down to
-   the shared 26px row height. */
+   the shared 26px row height. The border is explicit (!important beats
+   Obsidian's global input rule) so the field stays outlined in dark
+   mode, where the inherited border is invisible. */
 .memos-fb-name {
   flex: 1;
   min-width: 0;
   height: 26px;
   padding: 0 8px;
+  border: 1px solid var(--memos-border) !important;
   border-radius: 6px;
   font-size: 12px;
 }
@@ -889,6 +902,10 @@ body.memos-row-dragging {
   min-width: 0;
   height: 26px;
   padding-right: 24px;
+  /* Explicit border: without it the field inherits Obsidian's global
+     input style, whose dark-mode border is invisible against the panel. */
+  border: 1px solid var(--memos-border) !important;
+  border-radius: 6px;
   font-size: 12px;
 }
 /* Time condition control — a select-like trigger button; the popup it
@@ -957,6 +974,8 @@ body.memos-row-dragging {
   flex: 1;
   min-width: 0;
   height: 26px;
+  border: 1px solid var(--memos-border) !important;
+  border-radius: 6px;
 }
 /* ── Shared body-mounted popovers (add-menu / suggestions / time) ──
    Soft menu look: a padded 12px shell; option rows are inset rounded
@@ -992,6 +1011,11 @@ body.memos-row-dragging {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 10px 28px rgba(0, 0, 0, 0.18);
   transform-origin: top center;
   animation: memos-pop-in 0.14s ease-out;
+}
+/* Same dark-mode border fix as the panel: body-mounted popovers carry
+   their own token copy, so the override has to live here too. */
+body.theme-dark .memos-fb-pop {
+  --memos-border: rgba(255, 255, 255, 0.22);
 }
 @keyframes memos-pop-in {
   from {
@@ -1247,6 +1271,11 @@ body.memos-row-dragging {
   border-radius: 6px;
   font-size: 11.5px;
 }
+/* Dark mode: the buttons' inherited theme border is invisible against
+   the panel, leaving their positions hard to spot — lighten it. */
+body.theme-dark .memos-fp-footer button {
+  border-color: var(--memos-border) !important;
+}
 .memos-fp-footer button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -1427,9 +1456,11 @@ body.memos-row-dragging {
 .memos-editor-textarea {
   width: 100%;
   /* 82 + native padding 52 = 134，与 CM6 稳定高度一致；否则 textarea 阶段
-     比 CM6 高 12px，交换时表现为"从大到小"跳变。 */
+     比 CM6 高 12px，交换时表现为"从大到小"跳变。
+     max-height 与 .memos-editor-native 的二倍上限（268px）保持一致；
+     主 composer 里 absolute 覆盖规则会接管，这里主要约束 inline 编辑器。 */
   min-height: 82px;
-  max-height: 280px;
+  max-height: 268px;
   /* padding 与占位字 overlay 位置（top:8/left:14）一致，
      保证 textarea 阶段和 CM6 阶段文字起始位置完全重合。 */
   padding: 8px 14px;
@@ -1470,14 +1501,16 @@ body.memos-row-dragging {
    Padding on OUR wrapper is the single source of truth for text-to-edge
    spacing — it cannot be overridden by Obsidian or CM6 internal CSS. */
 .memos-editor-native {
-  /* min-height = CM6 稳定高度（内容 82 + padding 52 = 134）。textarea 阶段与
-     CM6 阶段都钉死在 134，交换时无高度跳变（Bug A「从大到小」根治）。
-     max-height = 280px：内容增长时 wrapper 自然长高（content-driven height），
-     到 280px 才停（约 7 行文字）。不需要 JS 检测溢出再展开——没有 160px cap 就没有溢出、
-     没有滚动条 flash、没有 JS 检测延迟。overflow: hidden 由 .cm-scroller
-    负责滚动，wrapper 不创建嵌套滚动容器。 */
-  min-height: 134px;
-  max-height: 280px;
+  /* 基线高 --memos-editor-rh = CM6 稳定高度（内容 82 + padding 52 = 134），
+     textarea 阶段与 CM6 阶段都以此为基线，交换时无高度跳变（Bug A 根治）。
+     max-height = 基线二倍（268px）：editor.ts 的 autoGrow 读取本元素的
+     computed min/max-height，把「内容高 + 垂直 padding」写入 style.height，
+     输入框随文字自动增高、最多长到二倍；超限后由内部 .cm-scroller 滚动。
+     展开态 / 快速记录浮窗 max-height:none 时 autoGrow 直接跳过。
+     overflow: hidden 由 .cm-scroller 负责滚动，wrapper 不创建嵌套滚动容器。 */
+  --memos-editor-rh: 134px;
+  min-height: var(--memos-editor-rh);
+  max-height: calc(var(--memos-editor-rh) * 2);
   overflow: hidden;
   position: relative;
   padding: 8px 14px 44px 14px;
@@ -1838,7 +1871,7 @@ body.memos-row-dragging {
   justify-content: center;
   border-radius: var(--memos-radius-sm);
   border: none;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -1875,7 +1908,7 @@ body.memos-row-dragging {
   /* 圆角矩形浅色发送键：强调色淡染底 + 强调色图标。 */
   border-radius: var(--memos-radius-sm);
   border: none;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -2377,8 +2410,11 @@ body.is-tablet .memos-view .memos-list .memos-card {
   border-color: var(--memos-border-hover);
 }
 .memos-card-toggle svg {
-  width: 15px;
-  height: 15px;
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  min-height: 15px !important;
+  flex-shrink: 0 !important;
 }
 
 .memos-card-body > p {
@@ -3243,18 +3279,21 @@ body.theme-dark .memos-calendar-cell.today {
   --icon-size: 18px;
   font-size: 14px;
 }
+/* Mobile phone: card menu button - transparent default (matches ghost buttons).
+   In dark mode the hardcoded rgba(255,255,255,0.35) looked like ugly light-gray
+   chips; transparent lets the dark card background show through cleanly. */
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu {
   width: 36px !important;
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  background: transparent !important;
+  box-shadow: none !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:hover {
-  background: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:active {
   transform: scale(0.9) !important;
@@ -3267,19 +3306,20 @@ body.theme-dark .memos-calendar-cell.today {
   min-height: 18px !important;
 }
 
-/* iPad: same tactile treatment for the card menu button (tablet, not phone). */
+/* iPad: same tactile treatment for the card menu button (tablet, not phone).
+   Using subtle theme-aware backgrounds instead of hardcoded light gray. */
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu {
   width: 36px !important;
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  background: transparent !important;
+  box-shadow: none !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:hover {
-  background: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:active {
   transform: scale(0.9) !important;
@@ -3292,19 +3332,19 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   min-height: 18px !important;
 }
 
-/* Mobile: open-panel button gets the same tactile treatment as card-menu. */
+/* Mobile phone: open-panel button - transparent default (same treatment). */
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel {
   width: 36px !important;
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  background: transparent !important;
+  box-shadow: none !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:hover {
-  background: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:active {
   transform: scale(0.9) !important;
@@ -3316,19 +3356,19 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   min-width: 18px !important;
   min-height: 18px !important;
 }
-/* iPad: same tactile treatment for the open-panel button. */
+/* iPad: same tactile treatment for the open-panel button - transparent default. */
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel {
   width: 36px !important;
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  background: transparent !important;
+  box-shadow: none !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:hover {
-  background: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:active {
   transform: scale(0.9) !important;
@@ -3707,7 +3747,7 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   justify-content: center;
   border-radius: var(--memos-radius-sm);
   border: none;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -3846,11 +3886,11 @@ body.is-tablet .memos-view .memos-list {
 body.is-mobile .memos-view .memos-editor-textarea,
 body.is-tablet .memos-view .memos-editor-textarea {
   min-height: 82px !important;
-  max-height: 280px !important;
+  max-height: 268px !important;
   padding: 6px 16px !important;
   padding-bottom: 40px !important;
 }
-/* .memos-editor-native height limits are identical to desktop — no override needed. */
+/* .memos-editor-native height limits are identical to desktop (134 → 268) — no override needed. */
 
 /* 移动端：detach 后编辑器不再是活跃 leaf，Obsidian 移动端会把
    .cm-content 的 user-select 锁成 none、并清除 contenteditable，导致
@@ -4548,6 +4588,74 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
   line-height: 1.65;
 }
 
+/* 通用页底部「反馈渠道」——QQ 频道卡片 + 邮箱 / B站链接行。 */
+.memos-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.memos-feedback-item,
+.memos-feedback-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-secondary);
+}
+
+.memos-feedback-item {
+  align-items: flex-start;
+}
+
+.memos-feedback-qr {
+  flex-shrink: 0;
+  width: 108px;
+  height: 108px;
+  border-radius: 4px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.memos-feedback-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.memos-feedback-title {
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.memos-feedback-desc,
+.memos-feedback-label {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.memos-feedback-row {
+  justify-content: space-between;
+}
+
+.memos-feedback-link {
+  color: var(--text-accent);
+  font-size: var(--font-ui-small);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .memos-feedback-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
 /* ── Accent color picker (Appearance section) ────────────── */
 /* Control column: preset swatches on top, custom color picker below,
    both right-aligned to sit inside the Setting's control area. */
@@ -4664,12 +4772,17 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
 
 /* 卡片折叠按钮：纯图标 ghost——无边框无底色无阴影，只留一个
    chevron；悬停浮出轻微高亮底。!important 压制 Obsidian 核心对
-   所有 <button> 的统一塑形与下方 composer 按钮组的误伤规则。 */
+   所有 <button> 的统一塑形与下方 composer 按钮组的误伤规则。
+   注意 padding: 0 !important：Obsidian 核心在 .is-tablet 下会给
+   所有 button 加 padding（.is-tablet button:not(.clickable-icon)），
+   会把内容盒压成负值，内联 flex 的 svg 被压缩到 0 宽（图标消失）；
+   按钮背景又是透明的，整个按钮在 iPad 上完全隐身。 */
 .memos-card-toggle {
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
   background-color: transparent !important;
+  padding: 0 !important;
 }
 .memos-card-toggle:hover {
   background: var(--background-modifier-hover) !important;
@@ -4856,16 +4969,6 @@ body.theme-dark {
   background-color: var(--memos-surface) !important;
 }
 
-/* ── LP parity: hide list syntax on non-cursor lines ──────────
-   Mirrors native Live Preview semantics inside the grafted editors only:
-   the "- [ ]" source syntax collapses on lines the caret is NOT on, so the
-   checkbox sits at the line's left edge exactly like a normal note. The
-   cursor line keeps the syntax visible (native behavior). */
-.memos-editor-native .cm-line:not(.cm-active) .cm-formatting-list-ul,
-.memos-inline-editor-wrap .cm-line:not(.cm-active) .cm-formatting-list-ul {
-  display: none;
-}
-
 /* ═══════════════════════════════════════════════════════════
    Quick capture — 快速记录浮动输入框
    ═══════════════════════════════════════════════════════════ */
@@ -5015,8 +5118,8 @@ body.theme-dark {
   padding: 0;
 }
 
-/* 框体自适应：高度随内容自然增长（content-driven），上限放宽到
-   56vh（主界面 composer 仍保持 280px 上限不受影响）；宽度随窗口
+/* 框体自适应：高度随内容自然增长（autoGrow content-driven），上限放宽到
+   56vh（主界面 composer 仍保持 268px 上限不受影响）；宽度随窗口
    92vw 自适应。超过上限后编辑器内部滚动。
    快速记录里按钮行在编辑器外部（不在编辑器内浮动），44px 底部
    padding 是主 composer 的发送按钮预留，这里浪费空间且产生
@@ -5163,6 +5266,38 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   max-height: none;
 }
 
+/* 手机端对齐：浮窗卡片与主界面输入框（composer）完全重合，位置/大小
+   由 JS 的 alignToComposer 对齐。核心 .is-phone .modal-content 的
+   padding:var(--size-4-4) 吃掉 32px 空间，使内容区仅剩 104px 而
+   非 136px，导致整条高度链塌陷（v0.5.9 证据：content=96 → wrap=64
+   → card=64）。这里必须用 padding:0 收回全部 136px 给内容区。
+   同时覆盖核心 overflow:auto（裁切阴影的元凶）。 */
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-quick-capture,
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-quick-capture-editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-native {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  max-height: none;
+}
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-native .markdown-source-view,
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-native .cm-editor {
+  height: 100%;
+  min-height: 0;
+}
+.memos-quick-capture-modal.memos-quick-capture-phone .memos-editor-textarea {
+  max-height: none;
+}
+
 /* ── 按钮行：全部纳入框体内，与主界面 composer 的按钮布局一致 ──
    左侧：拖拽 + 盯住（ghost）· 中间：自动标签提示 · 右侧：发送（primary）。
    内边距与编辑器文字区对齐，位于卡片底部。 */
@@ -5193,7 +5328,7 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   justify-content: center;
   border-radius: var(--memos-radius-sm);
   border: 1px solid var(--memos-border) !important;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -5232,7 +5367,7 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   justify-content: center;
   border-radius: var(--memos-radius-sm);
   border: 1px solid var(--memos-border) !important;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -5259,7 +5394,12 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   flex-shrink: 0 !important;
 }
 
-/* 恢复 / 新建浮窗按钮 — 与盯住按钮同款近白 chip */
+/* 恢复 / 新建浮窗按钮 — 与盯住按钮同款近白 chip。
+   padding 必须 !important：Obsidian 核心 .is-tablet
+   button:not(.clickable-icon) 会给 iPad 上所有 button 加 padding，
+   28px 宽按钮的内容盒被压成负值，无保护的 svg（flex-shrink 默认 1）
+   被压缩到 0 宽——按钮框还在但图标消失。svg 规则与盯住按钮同款
+   防压缩。 */
 .memos-quick-capture-restore,
 .memos-quick-capture-new {
   width: 28px !important;
@@ -5269,7 +5409,7 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   justify-content: center;
   border-radius: var(--memos-radius-sm);
   border: 1px solid var(--memos-border) !important;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -5286,6 +5426,14 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   background-color: var(--memos-surface-hover) !important;
   color: var(--memos-text);
 }
+.memos-quick-capture-restore svg,
+.memos-quick-capture-new svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+}
 
 /* 发送按钮 — 与主界面 send 按钮同款（近白 chip + 绿色图标） */
 .memos-quick-capture-send {
@@ -5298,7 +5446,7 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   justify-content: center;
   border-radius: var(--memos-radius-sm);
   border: 1px solid var(--memos-border) !important;
-  padding: 0;
+  padding: 0 !important;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -5373,6 +5521,10 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
 
 /* 浮动窗口模态外框外观 */
 .memos-quick-capture-modal {
+  /* 核心 .modal 是 position:relative，作为 .modal-container（flex
+     align/justify center）的子项被居中——设置 left/top 只会相对居中位
+     偏移。手机端对齐 composer 需要视口绝对坐标，必须钉死 fixed。 */
+  position: fixed !important;
   padding: 0 !important;
   background: transparent !important;
   border: none !important;
