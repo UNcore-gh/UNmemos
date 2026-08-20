@@ -1,9 +1,9 @@
 {
   "id": "unmemos",
   "name": "UNmemos",
-  "version": "0.5.16",
+  "version": "0.5.17",
   "minAppVersion": "1.7.2",
-  "description": "A faithful Memos-inspired flash-capture plugin. Timeline, tags, reactions, comments, and more.",
+  "description": "Memos-inspired flash-capture plugin. Timeline, tags, star & archive, @ mentions, and Canvas-native storage.",
   "author": "UNcore",
   "isDesktopOnly": false
 }

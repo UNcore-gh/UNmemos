@@ -144,7 +144,7 @@ The `@` syntax works everywhere in Obsidian — not just inside UNmemos views.
 
 ## License
 
-[MIT](LICENSE)
+[Source Available License](LICENSE) — 商用需授权。
 
 ## Support
 
