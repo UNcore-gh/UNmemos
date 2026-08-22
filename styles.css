@@ -78,6 +78,7 @@
 .memos-card-open-panel svg,
 .memos-calendar-nav svg,
 .memos-sidebar-hide-btn svg,
+.memos-sidebar-settings-btn svg,
 .memos-sidebar-float-btn svg {
   width: var(--icon-size, 14px) !important;
   height: var(--icon-size, 14px) !important;
@@ -445,17 +446,19 @@
 .memos-sidebar-topbar {
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* right sidebar → button in top-right corner */
+  justify-content: flex-end; /* right sidebar → buttons in the top-right corner */
+  gap: 2px;
   flex-shrink: 0;
   margin: -8px -4px 0;
 }
 
-/* Left-docked sidebar → button sits in the top-left corner instead */
+/* Left-docked sidebar → buttons sit in the top-left corner instead */
 .memos-sidebar-left-align .memos-sidebar-topbar {
   justify-content: flex-start;
 }
 
-.memos-sidebar-hide-btn {
+.memos-sidebar-hide-btn,
+.memos-sidebar-settings-btn {
   width: 28px;
   height: 28px;
   --icon-size: 16px;
@@ -469,7 +472,8 @@
   flex-shrink: 0;
 }
 
-.memos-sidebar-hide-btn:hover {
+.memos-sidebar-hide-btn:hover,
+.memos-sidebar-settings-btn:hover {
   background: var(--memos-hover);
   color: var(--memos-text);
 }
@@ -526,15 +530,16 @@ body.memos-is-resizing {
 /* The search row is ONE segmented control: a single bordered shell holds
    the input (left, flexible) and the funnel button (right, square). One
    outline, one radius, one focus ring — the funnel reads as part of the
-   search box, not a stray sibling. Radius matches the funnel chip's 4px
-   so the whole control reads consistently square. */
+   search box, not a stray sibling. Shell radius matches the composer
+   panel and memo cards (var(--memos-radius)) — user-requested uniform
+   roundness across search box / main panel / cards. */
 .memos-search {
   position: relative;
   display: flex;
   align-items: stretch;
   gap: 0;
   border: 1px solid var(--memos-border);
-  border-radius: 4px;
+  border-radius: var(--memos-radius);
   background: transparent;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -574,7 +579,7 @@ body.memos-is-resizing {
   margin: 0;
   padding: 0;
   border: none !important;
-  border-radius: 4px;
+  border-radius: var(--memos-radius-sm);
   background: transparent !important;
   box-shadow: none !important;
   color: var(--memos-text-muted);
@@ -1655,6 +1660,26 @@ body.theme-dark .memos-fp-footer button {
   width: 100% !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
+}
+/* ── 解除 readable line length（iPad 光标错位根源）──
+   用户开启 Obsidian「缩减栏宽」(readableLineLength) 时，核心给
+   .is-readable-line-width 的 .cm-sizer 设 max-width: var(--file-line-width)
+   （默认 700px）并 margin-left/right:auto 居中。平板端输入框内容区一旦
+   超过该宽度，整个文字层连同光标被居中收窄——光标不再贴最左，视觉错位。
+   桌面端内容区 ~660px 从未超过 700px，所以只在平板显现。插件的
+   composer / 行内编辑器是窄盒，行宽应由盒子自身决定，这里统一解除
+   限宽与居中（含核心对 .cm-content / .cm-line 的同款限宽）。 */
+.memos-editor-native .cm-sizer,
+.memos-inline-editor-wrap .cm-sizer {
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.memos-editor-native .cm-content,
+.memos-editor-native .cm-line,
+.memos-inline-editor-wrap .cm-content,
+.memos-inline-editor-wrap .cm-line {
+  max-width: 100% !important;
 }
 .memos-editor-native .cm-contentContainer,
 .memos-inline-editor-wrap .cm-contentContainer {
@@ -3252,12 +3277,14 @@ body.theme-dark .memos-calendar-cell.today {
 /* Mobile textarea: font-size is now handled by the max() rule below
    (line ~2120) and padding-bottom is set in the mobile editor section. */
 
-/* Bigger in-sidebar hide button on touch. */
-.is-mobile .memos-sidebar-hide-btn {
+/* Bigger in-sidebar topbar buttons on touch. */
+.is-mobile .memos-sidebar-hide-btn,
+.is-mobile .memos-sidebar-settings-btn {
   width: 36px;
   height: 36px;
 }
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg {
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg,
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-settings-btn svg {
   width: 18px !important;
   height: 18px !important;
   min-width: 18px !important;
@@ -3521,6 +3548,15 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   transition: transform 0.25s ease;
 }
 
+/* 测量前兜底:view.ts 会把侧边栏顶栏(设置/关闭按钮)对齐到浮动页首
+   基准线(内联 paddingTop,见 adjustFeedPaddingForHeader);内联值写入前,
+   先用顶部安全区把按钮压出状态栏(时间/通知栏)——系统层会拦截那里的
+   触摸,按钮"按不到"。仅作用于主面板手机抽屉;Obsidian 抽屉内场景
+   排除(抽屉自身已让出状态栏,浮动页首也被隐藏)。 */
+.memos-view.memos-is-phone:not(.memos-in-drawer) .memos-sidebar {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
 /* ─── Compact container: desktop view docked into a narrow Obsidian
    sidebar ──────────────────────────────────────────────────────────
    A statically docked internal sidebar would crush the feed into a
@@ -3551,6 +3587,17 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   transform: translateX(0);
   visibility: visible;
   transition: transform 0.25s ease;
+}
+
+/* Obsidian 滑动抽屉内(视图带 .memos-in-drawer):插件自身的滑入侧边栏
+   铺满整个面板宽度——手机布局的 320px 上限、紧凑布局的 300px 上限都
+   是为"覆盖 feed"设计的,在窄抽屉里反而浪费一大截显示区域。仅作用于
+   覆盖式布局(手机/紧凑);宽容器下侧边栏与 feed 并排,维持原比例。 */
+.memos-view.memos-in-drawer.memos-is-phone .memos-sidebar,
+.memos-view.memos-in-drawer.memos-view-compact .memos-sidebar {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
 }
 /* The floating restore button is redundant here — the editor already
    carries a panel toggle — and would sit over the dock's own chrome. */
@@ -3672,8 +3719,11 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   flex-shrink: 0 !important;
 }
 
-/* Override Obsidian core SVG rules */
-.workspace-leaf-content[data-type="memos-for-obsidian-view"] svg {
+/* Override Obsidian core SVG rules — scoped to memos plugin elements only,
+   excluding .view-header so Obsidian's native header icons stay at their
+   default size. */
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-view svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor svg {
   width: auto !important;
   height: auto !important;
 }
@@ -3703,7 +3753,8 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   flex-shrink: 0 !important;
 }
 
-.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg {
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-settings-btn svg {
   width: 16px !important;
   height: 16px !important;
   min-width: 16px !important;
@@ -3947,10 +3998,12 @@ body.is-mobile .memos-view .memos-editor-sidebar-btn,
 body.is-mobile .memos-view .memos-editor-search-btn,
 body.is-mobile .memos-view .memos-editor-top-btn,
 body.is-mobile .memos-view .memos-editor-expand,
+body.is-mobile .memos-view .memos-editor-select-btn,
 body.is-tablet .memos-view .memos-editor-sidebar-btn,
 body.is-tablet .memos-view .memos-editor-search-btn,
 body.is-tablet .memos-view .memos-editor-top-btn,
-body.is-tablet .memos-view .memos-editor-expand {
+body.is-tablet .memos-view .memos-editor-expand,
+body.is-tablet .memos-view .memos-editor-select-btn {
   width: 36px !important;
   height: 36px !important;
   min-width: 36px !important;
@@ -3963,10 +4016,12 @@ body.is-mobile .memos-view .memos-editor-sidebar-btn:hover,
 body.is-mobile .memos-view .memos-editor-search-btn:hover,
 body.is-mobile .memos-view .memos-editor-top-btn:hover,
 body.is-mobile .memos-view .memos-editor-expand:hover,
+body.is-mobile .memos-view .memos-editor-select-btn:hover,
 body.is-tablet .memos-view .memos-editor-sidebar-btn:hover,
 body.is-tablet .memos-view .memos-editor-search-btn:hover,
 body.is-tablet .memos-view .memos-editor-top-btn:hover,
-body.is-tablet .memos-view .memos-editor-expand:hover {
+body.is-tablet .memos-view .memos-editor-expand:hover,
+body.is-tablet .memos-view .memos-editor-select-btn:hover {
   background: rgba(255, 255, 255, 0.55) !important;
 }
 body.is-mobile .memos-view .memos-editor-send,
@@ -4022,11 +4077,13 @@ body.is-mobile .memos-view .memos-editor-sidebar-btn:active,
 body.is-mobile .memos-view .memos-editor-search-btn:active,
 body.is-mobile .memos-view .memos-editor-expand:active,
 body.is-mobile .memos-view .memos-editor-top-btn:active,
+body.is-mobile .memos-view .memos-editor-select-btn:active,
 body.is-mobile .memos-view .memos-editor-send:active,
 body.is-tablet .memos-view .memos-editor-sidebar-btn:active,
 body.is-tablet .memos-view .memos-editor-search-btn:active,
 body.is-tablet .memos-view .memos-editor-expand:active,
 body.is-tablet .memos-view .memos-editor-top-btn:active,
+body.is-tablet .memos-view .memos-editor-select-btn:active,
 body.is-tablet .memos-view .memos-editor-send:active {
   transform: scale(0.9) !important;
   background-color: rgba(0, 0, 0, 0.12) !important;
@@ -4039,11 +4096,13 @@ body.is-mobile .memos-view .memos-editor-search-btn svg,
 body.is-mobile .memos-view .memos-editor-top-btn svg,
 body.is-mobile .memos-view .memos-editor-expand svg,
 body.is-mobile .memos-view .memos-editor-send svg,
+body.is-mobile .memos-view .memos-editor-select-btn svg,
 body.is-tablet .memos-view .memos-editor-sidebar-btn svg,
 body.is-tablet .memos-view .memos-editor-search-btn svg,
 body.is-tablet .memos-view .memos-editor-top-btn svg,
 body.is-tablet .memos-view .memos-editor-expand svg,
-body.is-tablet .memos-view .memos-editor-send svg {
+body.is-tablet .memos-view .memos-editor-send svg,
+body.is-tablet .memos-view .memos-editor-select-btn svg {
   width: 18px !important;
   height: 18px !important;
   min-width: 18px !important;
@@ -4118,13 +4177,17 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .vie
   border-bottom: none !important;
   --file-header-background: var(--memos-bg-soft);
   --file-header-background-focused: var(--memos-bg-soft);
+  /* 高度与按钮尺寸不再强制 —— 移动端 Obsidian 原生浮动标题栏自带
+     更高的容器和更大的触控按钮；此前强制 40px/30px 曾把移动端页首
+     按钮压得比原生更小（桌面端不受影响）。交还给 Obsidian 默认值。 */
 }
 
 /* 隐藏右上角浮动侧边栏按钮（编辑器内已有） */
 .memos-sidebar-float-btn { display: none !important; }
 
-/* 隐藏侧边栏右上角的关闭按钮 */
-.memos-sidebar-hide-btn { display: none !important; }
+/* 侧边栏顶栏按钮全局常显（用户指定）：关闭按钮在所有布局下可见——
+   覆盖式抽屉里它是唯一出口（移动端关闭死局），静态布局下也不再隐藏；
+   旁边是插件设置快捷按钮（见 view.ts 顶栏构建）。 */
 
 /* iPad 端：侧边栏按视口宽度固定比例（横竖屏一致），整体稍小 */
 body.is-tablet .memos-sidebar,
@@ -4134,14 +4197,15 @@ body.is-tablet .memos-view .memos-sidebar {
   max-width: 320px !important;
 }
 
-/* iPad 端：卡片区域固定最大宽度并居中。
-   侧边栏隐藏时不会变得更宽，横屏时保持正常比例 */
+/* iPad 端：卡片区域固定最大宽度并居中（用户明确要求的机制：
+   取消侧边栏后卡片输入框与显示区域宽度不变大，保持居中阅读宽度），
+   只留 12px 窄边距以显示更多内容。 */
 body.is-tablet .memos-view .memos-feed,
 body.is-tablet .memos-view .memos-main .memos-feed {
   max-width: 780px !important;
   width: 100% !important;
-  padding-left: 24px !important;
-  padding-right: 24px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
 }
 
 /* 12. 桌面端移除输入框上方空白：彻底隐藏 feed 标题栏，并取消固定偏移 */
@@ -4277,7 +4341,8 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-send svg,
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-search-btn svg,
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-sidebar-btn svg,
-.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-top-btn svg {
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-top-btn svg,
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-editor-actions .memos-editor-select-btn svg {
   width: 14px !important;
   height: 14px !important;
   min-width: 14px !important;
@@ -4294,7 +4359,7 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
 }
 
 /* ── In-body [[Memos/….canvas#<id>]] links, rendered as a short "memo" ── */
-.memos-card-body a.memos-memo-link {
+.memos-card-body .memos-memo-link {
   color: var(--memos-outlink);
   background: rgba(var(--memos-outlink-rgb), 0.09);
   border-radius: 5px;
@@ -4304,13 +4369,13 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
   text-decoration: none;
   cursor: pointer;
 }
-.memos-card-body a.memos-memo-link:hover {
+.memos-card-body .memos-memo-link:hover {
   background: rgba(var(--memos-outlink-rgb), 0.17);
   text-decoration: none;
 }
 /* In-body memo link whose target was deleted: gray, struck-through, non-
    interactive — the same "broken" treatment as the footer ref chips. */
-.memos-card-body a.memos-memo-link.memos-memo-link-broken {
+.memos-card-body .memos-memo-link.memos-memo-link-broken {
   color: var(--memos-text-faint) !important;
   background: var(--memos-bg-muted) !important;
   text-decoration: line-through !important;
@@ -4318,7 +4383,7 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
   font-weight: 400;
   cursor: default;
 }
-.memos-card-body a.memos-memo-link.memos-memo-link-broken:hover {
+.memos-card-body .memos-memo-link.memos-memo-link-broken:hover {
   background: var(--memos-bg-muted) !important;
   text-decoration: line-through !important;
 }
@@ -4860,7 +4925,10 @@ body.theme-dark {
 .memos-editor-top-btn,
 .memos-editor-sidebar-btn,
 .memos-editor-expand,
-.memos-card-menu {
+.memos-card-menu,
+.memos-editor-select-btn,
+.memos-batch-chip,
+.memos-batch-more-btn {
   background-color: var(--memos-surface) !important;
   border: 1px solid var(--memos-border) !important;
   box-shadow: none !important;
@@ -4870,7 +4938,10 @@ body.theme-dark {
 .memos-editor-top-btn:hover,
 .memos-editor-sidebar-btn:hover,
 .memos-editor-expand:hover,
-.memos-card-menu:hover {
+.memos-card-menu:hover,
+.memos-editor-select-btn:hover,
+.memos-batch-chip:hover,
+.memos-batch-more-btn:hover {
   background-color: var(--memos-surface-hover) !important;
   border-color: var(--memos-border-hover) !important;
 }
@@ -5583,4 +5654,381 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
   z-index: 2;
   cursor: text;
   background: transparent;
+}
+
+/* ── Multi-select: composer toggle button ─────────────────────
+   Same ghost-icon pattern as .memos-editor-expand (anti-compression
+   sizing left to the shared .memos-editor-actions button rules). */
+.memos-editor-select-btn {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--memos-radius-sm);
+  border: none;
+  padding: 0 !important;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.memos-editor-select-btn:hover {
+  background: var(--memos-hover);
+  color: var(--memos-text);
+}
+
+.memos-editor-select-btn.is-active {
+  /* !important — the resting near-white surface rule is !important too, and
+     the lit accent state must win over it (see "Near-white button surfaces"). */
+  background-color: rgba(var(--memos-primary-rgb), 0.16) !important;
+  border-color: rgba(var(--memos-primary-rgb), 0.45) !important;
+  color: var(--memos-primary);
+}
+
+.memos-editor-select-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── Multi-select: card checkbox + selected highlight ───────── */
+.memos-card-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin-right: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--memos-text-faint, var(--text-faint, #999));
+  box-sizing: border-box;
+  vertical-align: middle;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.memos-card-check-icon,
+.memos-card-check svg {
+  display: none;
+}
+
+.memos-card.memos-card-selected {
+  border-color: rgba(var(--memos-primary-rgb), 0.7);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(var(--memos-primary-rgb), 0.35);
+}
+
+.memos-card.memos-card-selected .memos-card-check {
+  background: var(--memos-primary);
+  border-color: var(--memos-primary);
+  color: var(--memos-primary-fg);
+}
+
+.memos-card.memos-card-selected .memos-card-check-icon {
+  display: inline-flex;
+}
+
+.memos-card.memos-card-selected .memos-card-check svg {
+  display: block;
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── Multi-select: batch bar (composer → list) ────────────────
+   Left = select-all checkbox chip + 筛选器 chip (opens the sidebar's
+   native filter panel anchored here), middle = selection info, right =
+   ⋯ whose dropdown reuses .memos-card-dropdown. Buttons follow the
+   composer action-button language (ghost, transparent base, muted
+   icon/text, soft hover) so the bar reads as part of the input row. */
+.memos-batch-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.memos-batch-bar.is-hidden {
+  display: none;
+}
+
+.memos-batch-bar-left,
+.memos-batch-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.memos-batch-bar-mid {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.memos-batch-count {
+  font-size: 12px;
+  color: var(--memos-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chip buttons — same ghost treatment as .memos-editor-expand: transparent
+   base, muted content, soft hover tile, no border, no pill fill. */
+.memos-batch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 8px !important;
+  border: none;
+  border-radius: var(--memos-radius-sm);
+  background: transparent;
+  color: var(--memos-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  overflow: visible;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.memos-batch-chip:active {
+  transform: scale(0.94);
+}
+
+.memos-batch-chip.is-active {
+  /* !important to override the resting near-white surface (see the
+     "Near-white button surfaces (final)" section for why it exists). */
+  background-color: rgba(var(--memos-primary-rgb), 0.14) !important;
+  border-color: rgba(var(--memos-primary-rgb), 0.45) !important;
+  color: var(--memos-primary);
+}
+
+.memos-batch-chip-icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.memos-batch-chip-icon svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  flex-shrink: 0 !important;
+}
+
+.memos-batch-chip-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Small square checkbox inside the select-all chip. */
+.memos-batch-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  border-radius: 4px;
+  border: 1.5px solid currentColor;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.memos-batch-check-icon,
+.memos-batch-check svg {
+  display: none;
+}
+
+.memos-batch-check.is-checked {
+  background: var(--memos-primary);
+  border-color: var(--memos-primary);
+  color: var(--memos-primary-fg);
+}
+
+.memos-batch-check.is-checked svg {
+  display: block;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ⋯ button — the composer's ghost square (28px, transparent, muted) so the
+   bar's buttons all share one base; the dropdown chrome stays card-⋯'s. */
+.memos-batch-more-btn {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--memos-radius-sm);
+  padding: 0 !important;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: var(--memos-text-muted);
+  cursor: pointer;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.memos-batch-more-btn:active {
+  transform: scale(0.9);
+}
+
+.memos-batch-more-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Resting/hover surfaces for the chip and ⋯ buttons live in the
+   "Near-white button surfaces (final)" section (!important vs Obsidian's
+   --interactive-normal repaint) — don't redeclare them here. */
+
+/* Phone/tablet: match the composer buttons' 36px touch sizing so the bar's
+   buttons don't read one size smaller than the input row. */
+body.is-mobile .memos-view .memos-batch-chip,
+body.is-tablet .memos-view .memos-batch-chip {
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 12px !important;
+}
+
+body.is-mobile .memos-view .memos-batch-more-btn,
+body.is-tablet .memos-view .memos-batch-more-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+}
+
+body.is-mobile .memos-view .memos-batch-chip-icon svg,
+body.is-mobile .memos-view .memos-batch-more-btn svg,
+body.is-tablet .memos-view .memos-batch-chip-icon svg,
+body.is-tablet .memos-view .memos-batch-more-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+/* Active (checked) row inside the batch dropdown. */
+.memos-card-dropdown-item.memos-card-dropdown-item-active {
+  color: var(--memos-primary);
+  background: rgba(var(--memos-primary-rgb), 0.08);
+}
+
+.memos-batch-tag-input {
+  width: 100%;
+  margin: 8px 0 4px 0;
+  padding: 6px 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--memos-radius-sm);
+  background: var(--background-primary);
+  color: var(--memos-text);
+}
+
+.memos-modal-hint {
+  margin: 4px 0 0 0;
+  font-size: var(--font-ui-small);
+  color: var(--memos-text-muted);
+}
+
+/* ── 作者说弹窗 ──────────────────────────────────────────
+   版本变更后首次打开 Memos 主界面时弹出（ui/release-notes-modal.ts）。
+   宽度封顶 + 正文内部滚动，长文不撑破视口；钩子类挂在 .modal 上。 */
+.modal.memos-release-notes-modal {
+  max-width: min(560px, calc(100vw - 48px));
+}
+
+.memos-release-notes {
+  max-height: min(560px, 60vh);
+  overflow-y: auto;
+  padding-top: 4px;
+}
+
+/* 版本徽标：主题色描边胶囊，替代大标题减少与正文 h2 的层级冲突。 */
+.memos-release-notes-version {
+  display: inline-block;
+  margin: 2px 0 10px 0;
+  padding: 2px 10px;
+  border: 1px solid var(--memos-accent);
+  border-radius: 999px;
+  font-size: var(--font-ui-small);
+  font-weight: var(--font-medium, 600);
+  color: var(--memos-accent);
+}
+
+.memos-release-notes .markdown-rendered {
+  font-size: var(--font-text-size, 15px);
+  line-height: 1.65;
+}
+
+.memos-release-notes .markdown-rendered h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.15em;
+}
+
+.memos-release-notes .markdown-rendered h3 {
+  margin: 14px 0 6px 0;
+  font-size: 1.05em;
+}
+
+.memos-release-notes .markdown-rendered p {
+  margin: 0 0 10px 0;
+}
+
+.memos-release-notes .markdown-rendered ul {
+  margin: 0 0 10px 0;
+}
+
+.memos-release-notes .markdown-rendered li {
+  margin: 2px 0;
+}
+
+.memos-release-notes .markdown-rendered blockquote {
+  margin: 0 0 10px 0;
 }
