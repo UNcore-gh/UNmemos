@@ -744,8 +744,20 @@ body.memos-row-dragging {
   position: fixed;
   z-index: 1040; /* above card dropdown (var(--layer-menu,1000)), below mention popup (1050); the two never coexist */
   width: min(380px, 92vw);
+  /* fit-content:面板高度永远等于内容高度——maxHeight 只在内容真正超出
+     可用空间时才引发内部滚动,不再出现"面板比内容高、滚动下去全是空白"
+     的虚高。 */
+  height: fit-content;
   max-height: calc(100vh - 16px);
+  /* 双滚动条微溢出的根因链:overflow-y:auto 的滚动条一出现就吃掉 ~12px 内容
+     宽,恰好满宽的行于是横向也溢出一点 → 两个方向"都能稍微滑动"。
+     scrollbar-gutter 预留滚动条槽(滚动条出现与否内容宽度不变),overflow-x
+     兜底禁止横向滚动,border-box 让 reposition() 写的 inline width 含
+     padding/边框——三者合力消灭小幅晃动。 */
+  box-sizing: border-box;
+  overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   padding: 8px 10px;
   background: var(--memos-bg);
   border: 1px solid var(--memos-border);
@@ -840,9 +852,21 @@ body.theme-dark .memos-filter-panel {
   font-size: 12px;
 }
 
-/* Conditions area: positioned so the add-type menu can anchor to it. */
+/* Conditions area: positioned so the add-type menu can anchor to it.
+   overflow:clip guards the scroll height: Obsidian's DropdownComponent
+   keeps a PERMANENT hidden measuring clone beside every dropdown
+   (select.dropdown.is-measuring — absolute, visibility:hidden,
+   width:max-content) whose containing block is this relative box. Those
+   invisible clones reach far below the last row and count toward the
+   panel's scrollable overflow, so the panel grew a blank scroll strip
+   with EVERY added condition (scrollbar over empty space). clip (not
+   hidden — that would create a second scroll container) removes them
+   from the overflow chain at this boundary; they paint nothing, and the
+   suggestion/type menus are body-mounted or system-drawn, so nothing
+   visible is clipped. */
 .memos-fb-cond {
   position: relative;
+  overflow: clip;
 }
 
 /* Global combinator — the prominent dark pill-dropdown at the top of the
@@ -4012,17 +4036,41 @@ body.is-tablet .memos-view .memos-editor-select-btn {
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
+/* 多选栏三个按钮（全选 / 筛选器 / ⋯）与编辑器按钮同底色——只统一
+   背景/描边，不套 36px 定宽（前两个带文字标签）。否则它们落在下面
+   的实色近白表面上，在移动端读作一块浅灰色；桌面端无此组规则、
+   走共享近白表面，两端各自内部一致。 */
+body.is-mobile .memos-view .memos-batch-chip,
+body.is-mobile .memos-view .memos-batch-more-btn,
+body.is-tablet .memos-view .memos-batch-chip,
+body.is-tablet .memos-view .memos-batch-more-btn {
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+}
 body.is-mobile .memos-view .memos-editor-sidebar-btn:hover,
 body.is-mobile .memos-view .memos-editor-search-btn:hover,
 body.is-mobile .memos-view .memos-editor-top-btn:hover,
 body.is-mobile .memos-view .memos-editor-expand:hover,
 body.is-mobile .memos-view .memos-editor-select-btn:hover,
+body.is-mobile .memos-view .memos-batch-chip:hover,
+body.is-mobile .memos-view .memos-batch-more-btn:hover,
 body.is-tablet .memos-view .memos-editor-sidebar-btn:hover,
 body.is-tablet .memos-view .memos-editor-search-btn:hover,
 body.is-tablet .memos-view .memos-editor-top-btn:hover,
 body.is-tablet .memos-view .memos-editor-expand:hover,
-body.is-tablet .memos-view .memos-editor-select-btn:hover {
+body.is-tablet .memos-view .memos-editor-select-btn:hover,
+body.is-tablet .memos-view .memos-batch-chip:hover,
+body.is-tablet .memos-view .memos-batch-more-btn:hover {
   background: rgba(255, 255, 255, 0.55) !important;
+}
+/* 激活态（多选模式开启 / 筛选器面板打开）的主题色高亮必须压过上面
+   特异性更高的半透明底色——否则移动端永远看不到"已点亮"。 */
+body.is-mobile .memos-view .memos-editor-select-btn.is-active,
+body.is-mobile .memos-view .memos-batch-filter-btn.is-active,
+body.is-tablet .memos-view .memos-editor-select-btn.is-active,
+body.is-tablet .memos-view .memos-batch-filter-btn.is-active {
+  background-color: rgba(var(--memos-primary-rgb), 0.16) !important;
+  border-color: rgba(var(--memos-primary-rgb), 0.45) !important;
 }
 body.is-mobile .memos-view .memos-editor-send,
 body.is-tablet .memos-view .memos-editor-send {
@@ -4079,12 +4127,16 @@ body.is-mobile .memos-view .memos-editor-expand:active,
 body.is-mobile .memos-view .memos-editor-top-btn:active,
 body.is-mobile .memos-view .memos-editor-select-btn:active,
 body.is-mobile .memos-view .memos-editor-send:active,
+body.is-mobile .memos-view .memos-batch-chip:active,
+body.is-mobile .memos-view .memos-batch-more-btn:active,
 body.is-tablet .memos-view .memos-editor-sidebar-btn:active,
 body.is-tablet .memos-view .memos-editor-search-btn:active,
 body.is-tablet .memos-view .memos-editor-expand:active,
 body.is-tablet .memos-view .memos-editor-top-btn:active,
 body.is-tablet .memos-view .memos-editor-select-btn:active,
-body.is-tablet .memos-view .memos-editor-send:active {
+body.is-tablet .memos-view .memos-editor-send:active,
+body.is-tablet .memos-view .memos-batch-chip:active,
+body.is-tablet .memos-view .memos-batch-more-btn:active {
   transform: scale(0.9) !important;
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
@@ -4133,10 +4185,16 @@ body.theme-dark.is-mobile .memos-view .memos-editor-sidebar-btn,
 body.theme-dark.is-mobile .memos-view .memos-editor-search-btn,
 body.theme-dark.is-mobile .memos-view .memos-editor-top-btn,
 body.theme-dark.is-mobile .memos-view .memos-editor-expand,
+body.theme-dark.is-mobile .memos-view .memos-editor-select-btn,
+body.theme-dark.is-mobile .memos-view .memos-batch-chip,
+body.theme-dark.is-mobile .memos-view .memos-batch-more-btn,
 body.theme-dark.is-tablet .memos-view .memos-editor-sidebar-btn,
 body.theme-dark.is-tablet .memos-view .memos-editor-search-btn,
 body.theme-dark.is-tablet .memos-view .memos-editor-top-btn,
-body.theme-dark.is-tablet .memos-view .memos-editor-expand {
+body.theme-dark.is-tablet .memos-view .memos-editor-expand,
+body.theme-dark.is-tablet .memos-view .memos-editor-select-btn,
+body.theme-dark.is-tablet .memos-view .memos-batch-chip,
+body.theme-dark.is-tablet .memos-view .memos-batch-more-btn {
   background: rgba(30, 30, 30, 0.5) !important;
 }
 
@@ -4796,7 +4854,15 @@ body.is-phone .memos-view.memos-in-drawer .view-header {
 	margin-top: 16px;
 }
 
-/* "Back to top" button hidden until the feed scrolls down. */
+/* "Back to top" button hidden until the feed scrolls down.
+   !important: Obsidian core styles every <button> at higher specificity
+   than a plain class rule (same reason the surface rules below need it),
+   and the editor's own display:inline-flex base would otherwise win over
+   a two-class selector tie. Obsidian core has NO generic .is-hidden rule,
+   so without this the toggle in MemoEditor.setScrollDown is a no-op. */
+.memos-editor-top-btn.is-hidden {
+	display: none !important;
+}
 
 /* ═══ Button surface refresh ═════════════════════════════════
    Shapes stay as the original rounded rectangles (radius-sm); only the
@@ -5955,6 +6021,41 @@ body.is-tablet .memos-view .memos-batch-more-btn svg {
   min-height: 18px !important;
 }
 
+/* Desktop: the generic svg auto-size reset earlier in this file
+   (.workspace-leaf-content[data-type…] .memos-view svg → width/height:auto
+   !important) outranks the plain-class batch rules above, so these glyphs
+   fell back to intrinsic sizing — the bare ⋯ svg painted visibly larger
+   than the chip icons beside it (chip icons are contained by their fixed
+   14px span; mobile/tablet dodge the reset via the block above).
+   Re-declare at higher specificity, scoped to DESKTOP ONLY so it never
+   fights the touch sizing above. */
+body:not(.is-mobile):not(.is-tablet)
+  .workspace-leaf-content[data-type='memos-for-obsidian-view']
+  .memos-view
+  .memos-batch-chip-icon
+  svg,
+body:not(.is-mobile):not(.is-tablet)
+  .workspace-leaf-content[data-type='memos-for-obsidian-view']
+  .memos-view
+  .memos-batch-more-btn
+  svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  flex-shrink: 0 !important;
+}
+body:not(.is-mobile):not(.is-tablet)
+  .workspace-leaf-content[data-type='memos-for-obsidian-view']
+  .memos-view
+  .memos-batch-check.is-checked
+  svg {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+}
+
 /* Active (checked) row inside the batch dropdown. */
 .memos-card-dropdown-item.memos-card-dropdown-item-active {
   color: var(--memos-primary);
@@ -6031,4 +6132,51 @@ body.is-tablet .memos-view .memos-batch-more-btn svg {
 
 .memos-release-notes .markdown-rendered blockquote {
   margin: 0 0 10px 0;
+}
+
+/* Touch long-press preview: while a hold on a ref/body link is arming, the
+   anchor must not be selectable — the OS text-selection gesture otherwise
+   takes the pointer over (pointercancel) and the preview never fires. */
+.memos-longpress-arming,
+.memos-longpress-arming * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* Touch long-press preview: on phones/tablets, in-body [[…]] links are
+   anchors — selectable AND natively draggable. A long-hold would otherwise
+   start a text-selection or "drag this link" gesture that hijacks the
+   pointer stream (pointercancel) before the preview timer fires. Refs chips
+   are custom divs and never had the problem; level the playing field by
+   disabling selection/drag affordances on card links for touch only. */
+.is-mobile .memos-card .internal-link {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* Refs chips join body links in the touch-unselectable club: iPadOS starts
+   a text-selection loupe on long-press over selectable text, which cancels
+   the pointer stream (pointercancel) before the preview timer can fire.
+   Body links got this in the previous fix and preview fine — same treatment
+   for chips so both behave identically on touch devices. */
+.is-mobile .memos-card .memos-ref-chip,
+.is-mobile .memos-card .memos-memo-link {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* ── Touch long-press preview (self-managed popover) ─────────────────────
+   Element carries the official `popover hover-popover` class pair — core
+   paints the panel and sizes the embed; we only pin viewport positioning
+   (inline left/top are viewport coords from getBoundingClientRect) and keep
+   inner scrolling smooth on touch. */
+.memos-touch-preview {
+  position: fixed;
+}
+
+.memos-touch-preview .markdown-embed-content {
+  -webkit-overflow-scrolling: touch;
 }
