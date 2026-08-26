@@ -77,6 +77,7 @@
 .memos-card-menu svg,
 .memos-card-open-panel svg,
 .memos-calendar-nav svg,
+.memos-sidebar-tip-btn svg,
 .memos-sidebar-hide-btn svg,
 .memos-sidebar-settings-btn svg,
 .memos-sidebar-float-btn svg {
@@ -457,6 +458,7 @@
   justify-content: flex-start;
 }
 
+.memos-sidebar-tip-btn,
 .memos-sidebar-hide-btn,
 .memos-sidebar-settings-btn {
   width: 28px;
@@ -472,6 +474,7 @@
   flex-shrink: 0;
 }
 
+.memos-sidebar-tip-btn:hover,
 .memos-sidebar-hide-btn:hover,
 .memos-sidebar-settings-btn:hover {
   background: var(--memos-hover);
@@ -3302,11 +3305,13 @@ body.theme-dark .memos-calendar-cell.today {
    (line ~2120) and padding-bottom is set in the mobile editor section. */
 
 /* Bigger in-sidebar topbar buttons on touch. */
+.is-mobile .memos-sidebar-tip-btn,
 .is-mobile .memos-sidebar-hide-btn,
 .is-mobile .memos-sidebar-settings-btn {
   width: 36px;
   height: 36px;
 }
+.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-tip-btn svg,
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg,
 .is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-settings-btn svg {
   width: 18px !important;
@@ -3777,6 +3782,7 @@ body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .mem
   flex-shrink: 0 !important;
 }
 
+.workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-tip-btn svg,
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-hide-btn svg,
 .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-sidebar-settings-btn svg {
   width: 16px !important;
@@ -6179,4 +6185,122 @@ body:not(.is-mobile):not(.is-tablet)
 
 .memos-touch-preview .markdown-embed-content {
   -webkit-overflow-scrolling: touch;
+}
+
+/* ── Tips: lightbulb popover (body-mounted, .memos-fb-pop family) ── */
+
+.memos-tip-pop {
+  max-width: 340px;
+  padding: 12px 14px 10px;
+  gap: 8px;
+}
+
+.memos-tip-pop-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--memos-accent);
+}
+.memos-tip-pop-head-icon {
+  display: flex;
+  align-items: center;
+}
+.memos-tip-pop-head-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.memos-tip-pop-body {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--memos-text);
+  overflow-wrap: anywhere;
+}
+
+.memos-tip-pop-foot {
+  all: unset;
+  box-sizing: border-box;
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 2px 0;
+  font-size: 11.5px;
+  color: var(--memos-text-faint);
+  cursor: pointer;
+  border-bottom: 1px dashed var(--memos-border);
+  transition: color 0.15s ease;
+}
+.memos-tip-pop-foot:hover {
+  color: var(--memos-accent);
+}
+
+/* ── Tips: collapsible full list in the settings tab ─────────────── */
+
+.memos-tips-details {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  padding: 4px 0;
+  margin: 0 0 12px;
+  background: var(--background-secondary);
+}
+.memos-tips-details summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-normal);
+  font-size: var(--font-ui-small);
+}
+.memos-tips-details summary::-webkit-details-marker,
+.memos-tips-details summary::marker {
+  display: none;
+  content: '';
+}
+.memos-tips-details summary:hover {
+  background: var(--background-modifier-hover);
+  border-radius: 8px;
+}
+.memos-tips-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+.memos-tips-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+.memos-tips-summary-text {
+  font-weight: 500;
+}
+.memos-tips-item {
+  display: flex;
+  gap: 10px;
+  padding: 7px 12px;
+  font-size: var(--font-ui-smaller);
+  line-height: 1.5;
+  color: var(--text-normal);
+}
+.memos-tips-item:hover {
+  background: var(--background-modifier-hover);
+}
+.memos-tips-index {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-faint);
+  background: var(--background-modifier-border);
+}
+.memos-tips-text {
+  overflow-wrap: anywhere;
+  padding-top: 1px;
 }
