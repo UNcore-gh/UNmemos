@@ -6304,3 +6304,82 @@ body:not(.is-mobile):not(.is-tablet)
   overflow-wrap: anywhere;
   padding-top: 1px;
 }
+
+/* ── Dark theme: strip the gray resting fill on icon/chip buttons ──
+   用户反馈：深色模式下按钮内部的灰色填充（--memos-surface 是"背景混白"
+   的灰块）很丑，全部去掉——静息态纯透明、无阴影，悬停才出现浅色反馈。
+   作用域仅 body.theme-dark：浅色模式下近白 chip 与背景几乎同色，维持原状
+   （浅色下去掉填充曾被反馈为"按钮默认色没变"，勿回退）。
+   :not(.is-active) 保护批量选中 chip 等激活态底色。 */
+body.theme-dark .memos-editor-send:not(.is-active),
+body.theme-dark .memos-editor-search-btn:not(.is-active),
+body.theme-dark .memos-editor-top-btn:not(.is-active),
+body.theme-dark .memos-editor-sidebar-btn:not(.is-active),
+body.theme-dark .memos-editor-expand:not(.is-active),
+body.theme-dark .memos-editor-select-btn:not(.is-active),
+body.theme-dark .memos-card-menu:not(.is-active),
+body.theme-dark .memos-card-open-panel:not(.is-active),
+body.theme-dark .memos-card-pin:not(.is-active),
+body.theme-dark .memos-card-toggle:not(.is-active),
+body.theme-dark .memos-batch-chip:not(.is-active),
+body.theme-dark .memos-batch-more-btn:not(.is-active),
+body.theme-dark .memos-quick-capture-send:not(.is-active),
+body.theme-dark .memos-quick-capture-drag:not(.is-active),
+body.theme-dark .memos-quick-capture-pin:not(.is-active),
+body.theme-dark .memos-quick-capture-restore:not(.is-active),
+body.theme-dark .memos-quick-capture-new:not(.is-active),
+body.theme-dark .memos-quick-capture-close:not(.is-active),
+body.theme-dark .memos-btn-ghost:not(.is-active) {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+body.theme-dark .memos-editor-send:not(.is-active):hover,
+body.theme-dark .memos-editor-search-btn:not(.is-active):hover,
+body.theme-dark .memos-editor-top-btn:not(.is-active):hover,
+body.theme-dark .memos-editor-sidebar-btn:not(.is-active):hover,
+body.theme-dark .memos-editor-expand:not(.is-active):hover,
+body.theme-dark .memos-editor-select-btn:not(.is-active):hover,
+body.theme-dark .memos-card-menu:not(.is-active):hover,
+body.theme-dark .memos-card-open-panel:not(.is-active):hover,
+body.theme-dark .memos-card-pin:not(.is-active):hover,
+body.theme-dark .memos-card-toggle:not(.is-active):hover,
+body.theme-dark .memos-batch-chip:not(.is-active):hover,
+body.theme-dark .memos-batch-more-btn:not(.is-active):hover,
+body.theme-dark .memos-quick-capture-send:not(.is-active):hover,
+body.theme-dark .memos-quick-capture-drag:not(.is-active):hover,
+body.theme-dark .memos-quick-capture-pin:not(.is-active):hover,
+body.theme-dark .memos-quick-capture-restore:not(.is-active):hover,
+body.theme-dark .memos-quick-capture-new:not(.is-active):hover,
+body.theme-dark .memos-quick-capture-close:not(.is-active):hover,
+body.theme-dark .memos-btn-ghost:not(.is-active):hover {
+  background-color: var(--memos-surface-hover) !important;
+  box-shadow: none !important;
+}
+/* 卡片 ⋯ 下拉菜单项：深色下去掉 --memos-surface 灰底（同上节），悬停浅色反馈 */
+body.theme-dark .memos-card-dropdown-item {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+body.theme-dark .memos-card-dropdown-item:hover {
+  background-color: var(--memos-surface-hover) !important;
+}
+/* 悬浮抽屉（窄容器 compact 模式）下侧边栏顶部无额外镶边，顶栏按钮组
+   自带的 -8px 负边距会把三个按钮贴到抽屉最上沿——改回正留白。 */
+.memos-view-compact .memos-sidebar .memos-sidebar-topbar {
+  margin: 6px -4px 0;
+}
+/* 日历/热力图：深色下去掉 --memos-surface 灰底（同按钮清单那一节）。
+   格子保留描边以维持网格感；月份切换按钮静息透明、悬停反馈。 */
+body.theme-dark .memos-calendar-cell:not([class*='level-']):not(.today),
+body.theme-dark .memos-calendar-cell.future,
+body.theme-dark .memos-lite-heatmap-cell {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+body.theme-dark .memos-calendar-nav {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+body.theme-dark .memos-calendar-nav:hover {
+  background-color: var(--memos-surface-hover) !important;
+}
