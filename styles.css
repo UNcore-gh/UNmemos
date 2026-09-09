@@ -22,7 +22,7 @@
      keeps the faintest cool-gray wash so the two planes read apart and
      the white cards on the white stage never melt into it. */
   --memos-feed-bg: #ffffff;
-  --memos-rail-bg: #f7f8fa;
+  --memos-rail-bg: #ffffff;
 
   --memos-text: var(--text-normal, #1f2937);
   --memos-text-muted: var(--text-muted, #6b7280);
@@ -4023,7 +4023,8 @@ body.is-tablet .memos-card-body .markdown-rendered {
 }
 
 /* 9. 移动端按钮：纯半透明（无毛玻璃），便于阅读按钮下方文字。
-   质感优化：极轻内描边 + 按压缩放反馈 + 平滑过渡。 */
+   质感优化：无边框（主题默认边框在移动端发棕发闷），改用柔和投影 +
+   按压缩放反馈 + 平滑过渡。 */
 body.is-mobile .memos-view .memos-editor-sidebar-btn,
 body.is-mobile .memos-view .memos-editor-search-btn,
 body.is-mobile .memos-view .memos-editor-top-btn,
@@ -4038,8 +4039,9 @@ body.is-tablet .memos-view .memos-editor-select-btn {
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
+  border: none !important;
   background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
 /* 多选栏三个按钮（全选 / 筛选器 / ⋯）与编辑器按钮同底色——只统一
@@ -4050,8 +4052,9 @@ body.is-mobile .memos-view .memos-batch-chip,
 body.is-mobile .memos-view .memos-batch-more-btn,
 body.is-tablet .memos-view .memos-batch-chip,
 body.is-tablet .memos-view .memos-batch-more-btn {
+  border: none !important;
   background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
 }
 body.is-mobile .memos-view .memos-editor-sidebar-btn:hover,
 body.is-mobile .memos-view .memos-editor-search-btn:hover,
@@ -4076,7 +4079,7 @@ body.is-mobile .memos-view .memos-batch-filter-btn.is-active,
 body.is-tablet .memos-view .memos-editor-select-btn.is-active,
 body.is-tablet .memos-view .memos-batch-filter-btn.is-active {
   background-color: rgba(var(--memos-primary-rgb), 0.16) !important;
-  border-color: rgba(var(--memos-primary-rgb), 0.45) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--memos-primary-rgb), 0.45) !important;
 }
 body.is-mobile .memos-view .memos-editor-send,
 body.is-tablet .memos-view .memos-editor-send {
@@ -4084,8 +4087,9 @@ body.is-tablet .memos-view .memos-editor-send {
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
+  border: none !important;
   background: rgba(var(--memos-primary-rgb), 0.2) !important;
-  box-shadow: inset 0 0 0 1px rgba(var(--memos-primary-rgb), 0.18) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
   transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
 }
 body.is-mobile .memos-view .memos-editor-send:hover,
