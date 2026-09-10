@@ -3335,107 +3335,8 @@ body.theme-dark .memos-calendar-cell.today {
   --icon-size: 18px;
   font-size: 14px;
 }
-/* Mobile phone: card menu button - transparent default (matches ghost buttons).
-   In dark mode the hardcoded rgba(255,255,255,0.35) looked like ugly light-gray
-   chips; transparent lets the dark card background show through cleanly. */
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  opacity: 1 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
-}
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-}
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:active {
-  transform: scale(0.9) !important;
-  background: rgba(0, 0, 0, 0.12) !important;
-}
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
-}
-
-/* iPad: same tactile treatment for the card menu button (tablet, not phone).
-   Using subtle theme-aware backgrounds instead of hardcoded light gray. */
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  opacity: 1 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
-}
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-}
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu:active {
-  transform: scale(0.9) !important;
-  background: rgba(0, 0, 0, 0.12) !important;
-}
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-menu svg {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
-}
-
-/* Mobile phone: open-panel button - transparent default (same treatment). */
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  opacity: 1 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
-}
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-}
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:active {
-  transform: scale(0.9) !important;
-  background: rgba(0, 0, 0, 0.12) !important;
-}
-.is-mobile .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel svg {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
-}
-/* iPad: same tactile treatment for the open-panel button - transparent default. */
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  opacity: 1 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
-}
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-}
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel:active {
-  transform: scale(0.9) !important;
-  background: rgba(0, 0, 0, 0.12) !important;
-}
-body.is-tablet .workspace-leaf-content[data-type="memos-for-obsidian-view"] .memos-card-open-panel svg {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
-}
+/* 卡片右上角按钮（⋯ 菜单 / 浮窗打开）三端统一：走上方共享的 22px ghost +
+   近白 chip 规则，不再为触屏单独放大到 36px。触屏无 hover，opacity 保持可见。 */
 .is-mobile .memos-card-dropdown-item {
   min-height: 50px;
   font-size: 15px;
@@ -4022,80 +3923,9 @@ body.is-tablet .memos-card-body .markdown-rendered {
   -webkit-touch-callout: default !important;
 }
 
-/* 9. 移动端按钮：纯半透明（无毛玻璃），便于阅读按钮下方文字。
-   质感优化：无边框（主题默认边框在移动端发棕发闷），改用柔和投影 +
-   按压缩放反馈 + 平滑过渡。 */
-body.is-mobile .memos-view .memos-editor-sidebar-btn,
-body.is-mobile .memos-view .memos-editor-search-btn,
-body.is-mobile .memos-view .memos-editor-top-btn,
-body.is-mobile .memos-view .memos-editor-expand,
-body.is-mobile .memos-view .memos-editor-select-btn,
-body.is-tablet .memos-view .memos-editor-sidebar-btn,
-body.is-tablet .memos-view .memos-editor-search-btn,
-body.is-tablet .memos-view .memos-editor-top-btn,
-body.is-tablet .memos-view .memos-editor-expand,
-body.is-tablet .memos-view .memos-editor-select-btn {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  border: none !important;
-  background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
-}
-/* 多选栏三个按钮（全选 / 筛选器 / ⋯）与编辑器按钮同底色——只统一
-   背景/描边，不套 36px 定宽（前两个带文字标签）。否则它们落在下面
-   的实色近白表面上，在移动端读作一块浅灰色；桌面端无此组规则、
-   走共享近白表面，两端各自内部一致。 */
-body.is-mobile .memos-view .memos-batch-chip,
-body.is-mobile .memos-view .memos-batch-more-btn,
-body.is-tablet .memos-view .memos-batch-chip,
-body.is-tablet .memos-view .memos-batch-more-btn {
-  border: none !important;
-  background: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-}
-body.is-mobile .memos-view .memos-editor-sidebar-btn:hover,
-body.is-mobile .memos-view .memos-editor-search-btn:hover,
-body.is-mobile .memos-view .memos-editor-top-btn:hover,
-body.is-mobile .memos-view .memos-editor-expand:hover,
-body.is-mobile .memos-view .memos-editor-select-btn:hover,
-body.is-mobile .memos-view .memos-batch-chip:hover,
-body.is-mobile .memos-view .memos-batch-more-btn:hover,
-body.is-tablet .memos-view .memos-editor-sidebar-btn:hover,
-body.is-tablet .memos-view .memos-editor-search-btn:hover,
-body.is-tablet .memos-view .memos-editor-top-btn:hover,
-body.is-tablet .memos-view .memos-editor-expand:hover,
-body.is-tablet .memos-view .memos-editor-select-btn:hover,
-body.is-tablet .memos-view .memos-batch-chip:hover,
-body.is-tablet .memos-view .memos-batch-more-btn:hover {
-  background: rgba(255, 255, 255, 0.55) !important;
-}
-/* 激活态（多选模式开启 / 筛选器面板打开）的主题色高亮必须压过上面
-   特异性更高的半透明底色——否则移动端永远看不到"已点亮"。 */
-body.is-mobile .memos-view .memos-editor-select-btn.is-active,
-body.is-mobile .memos-view .memos-batch-filter-btn.is-active,
-body.is-tablet .memos-view .memos-editor-select-btn.is-active,
-body.is-tablet .memos-view .memos-batch-filter-btn.is-active {
-  background-color: rgba(var(--memos-primary-rgb), 0.16) !important;
-  box-shadow: inset 0 0 0 1px rgba(var(--memos-primary-rgb), 0.45) !important;
-}
-body.is-mobile .memos-view .memos-editor-send,
-body.is-tablet .memos-view .memos-editor-send {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  border: none !important;
-  background: rgba(var(--memos-primary-rgb), 0.2) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-  transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease !important;
-}
-body.is-mobile .memos-view .memos-editor-send:hover,
-body.is-tablet .memos-view .memos-editor-send:hover {
-  background: rgba(var(--memos-primary-rgb), 0.32) !important;
-}
+/* 9. 输入框操作按钮三端统一：尺寸/底色/描边/图标全走上方共享规则
+   （28px ghost + 近白 chip + 14px 图标），不再为触屏放大到 36px 或
+   换半透明 rgba 底。仅保留下方 touch-action 的点按即时响应优化。 */
 /* 点按即响应：显式声明 manipulation，让浏览器跳过双击缩放/捏合的手势等候
    判定，消除搜索、侧边栏等按钮"点了要等一下才反应"的迟滞感。 */
 body.is-mobile .memos-view .memos-editor-actions button,
@@ -4131,45 +3961,6 @@ body.memos-toolbar-off .mobile-toolbar-spacer {
   display: none !important;
 }
 /* 实体按压反馈：按下时轻微缩小，给人"按下去"的触感 */
-body.is-mobile .memos-view .memos-editor-sidebar-btn:active,
-body.is-mobile .memos-view .memos-editor-search-btn:active,
-body.is-mobile .memos-view .memos-editor-expand:active,
-body.is-mobile .memos-view .memos-editor-top-btn:active,
-body.is-mobile .memos-view .memos-editor-select-btn:active,
-body.is-mobile .memos-view .memos-editor-send:active,
-body.is-mobile .memos-view .memos-batch-chip:active,
-body.is-mobile .memos-view .memos-batch-more-btn:active,
-body.is-tablet .memos-view .memos-editor-sidebar-btn:active,
-body.is-tablet .memos-view .memos-editor-search-btn:active,
-body.is-tablet .memos-view .memos-editor-expand:active,
-body.is-tablet .memos-view .memos-editor-top-btn:active,
-body.is-tablet .memos-view .memos-editor-select-btn:active,
-body.is-tablet .memos-view .memos-editor-send:active,
-body.is-tablet .memos-view .memos-batch-chip:active,
-body.is-tablet .memos-view .memos-batch-more-btn:active {
-  transform: scale(0.9) !important;
-  background-color: rgba(0, 0, 0, 0.12) !important;
-}
-body.is-mobile .memos-view .memos-editor-send:active {
-  background-color: rgba(var(--memos-primary-rgb), 0.42) !important;
-}
-body.is-mobile .memos-view .memos-editor-sidebar-btn svg,
-body.is-mobile .memos-view .memos-editor-search-btn svg,
-body.is-mobile .memos-view .memos-editor-top-btn svg,
-body.is-mobile .memos-view .memos-editor-expand svg,
-body.is-mobile .memos-view .memos-editor-send svg,
-body.is-mobile .memos-view .memos-editor-select-btn svg,
-body.is-tablet .memos-view .memos-editor-sidebar-btn svg,
-body.is-tablet .memos-view .memos-editor-search-btn svg,
-body.is-tablet .memos-view .memos-editor-top-btn svg,
-body.is-tablet .memos-view .memos-editor-expand svg,
-body.is-tablet .memos-view .memos-editor-send svg,
-body.is-tablet .memos-view .memos-editor-select-btn svg {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
-}
 body.is-mobile .memos-view .memos-editor-textarea,
 body.is-tablet .memos-view .memos-editor-textarea {
   font-size: max(var(--font-text-size), 16px) !important;
@@ -4190,23 +3981,8 @@ body.is-tablet .memos-view .memos-card-body .markdown-rendered li {
   line-height: 1.5 !important;
 }
 
-/* 10. 暗色主题半透明 */
-body.theme-dark.is-mobile .memos-view .memos-editor-sidebar-btn,
-body.theme-dark.is-mobile .memos-view .memos-editor-search-btn,
-body.theme-dark.is-mobile .memos-view .memos-editor-top-btn,
-body.theme-dark.is-mobile .memos-view .memos-editor-expand,
-body.theme-dark.is-mobile .memos-view .memos-editor-select-btn,
-body.theme-dark.is-mobile .memos-view .memos-batch-chip,
-body.theme-dark.is-mobile .memos-view .memos-batch-more-btn,
-body.theme-dark.is-tablet .memos-view .memos-editor-sidebar-btn,
-body.theme-dark.is-tablet .memos-view .memos-editor-search-btn,
-body.theme-dark.is-tablet .memos-view .memos-editor-top-btn,
-body.theme-dark.is-tablet .memos-view .memos-editor-expand,
-body.theme-dark.is-tablet .memos-view .memos-editor-select-btn,
-body.theme-dark.is-tablet .memos-view .memos-batch-chip,
-body.theme-dark.is-tablet .memos-view .memos-batch-more-btn {
-  background: rgba(30, 30, 30, 0.5) !important;
-}
+/* 10. 暗色主题：三端统一——静息态纯透明、悬停浅色反馈，由文末
+   body.theme-dark 共享规则统一处理，不再给移动端单独叠灰底。 */
 
 /* ── Editor position offset ────────────────────────────────
    On desktop the Obsidian view-header sits in the normal flow and
@@ -4974,40 +4750,44 @@ body.theme-dark {
   --memos-surface: color-mix(in srgb, var(--background-primary) 84%, #ffffff);
   --memos-surface-hover: color-mix(in srgb, var(--background-primary) 76%, #ffffff);
 }
-.memos-editor-send {
-  background-color: var(--memos-surface) !important;
-  color: var(--memos-primary) !important;
-  box-shadow: none !important;
+/* ── 悬浮按钮（final）────────────────────────────────────────
+   用户反馈：这些按钮要"没有边框、像悬浮在输入框上面"的观感 —— 但静息态
+   必须一眼看出是个按钮（而不是光秃秃只剩图标）。所以：不要边框，改用
+   「淡底色 + 柔和投影」体现浮起感。三端（桌面 / 手机 / 平板）共用同一套。
+   底色与投影做成主题变量：亮色=浅色玻璃面+深色投影；暗色=微亮面+黑投影，
+   两种主题下都能读出"悬浮按钮"。 */
+body {
+  --memos-btn-bg: rgba(255, 255, 255, 0.82);
+  --memos-btn-bg-hover: #ffffff;
+  --memos-btn-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.1),
+    0 2px 6px rgba(15, 23, 42, 0.07);
+  --memos-btn-shadow-hover:
+    0 2px 5px rgba(15, 23, 42, 0.13),
+    0 4px 14px rgba(15, 23, 42, 0.1);
 }
-.memos-editor-send:hover {
-  background-color: var(--memos-surface-hover) !important;
-  color: var(--memos-primary-hover) !important;
+body.theme-dark {
+  --memos-btn-bg: rgba(255, 255, 255, 0.08);
+  --memos-btn-bg-hover: rgba(255, 255, 255, 0.16);
+  --memos-btn-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.34);
+  --memos-btn-shadow-hover:
+    0 2px 6px rgba(0, 0, 0, 0.55),
+    0 4px 14px rgba(0, 0, 0, 0.4);
 }
-/* (merged into the final block below) */
-.memos-card-dropdown {
-  background-color: color-mix(in srgb, var(--memos-surface) 90%, transparent) !important;
-}
-.memos-card-dropdown-item:hover {
-  background: var(--memos-surface-hover);
-}
-
-/* ── Resting near-white chips ────────────────────────────────
-   The action buttons carried NO resting surface (transparent until hover),
-   which read as "the default color never changed". Give them the near-white
-   chip at rest; hover deepens it. !important is required — Obsidian core
-   styles every <button> via higher-specificity selectors that override our
-   plain class rules (same reason .memos-filter-btn needs !important). */
 .memos-editor-search-btn,
 .memos-editor-top-btn,
 .memos-editor-sidebar-btn,
 .memos-editor-expand,
 .memos-card-menu,
+.memos-card-open-panel,
 .memos-editor-select-btn,
 .memos-batch-chip,
 .memos-batch-more-btn {
-  background-color: var(--memos-surface) !important;
-  border: 1px solid var(--memos-border) !important;
-  box-shadow: none !important;
+  background-color: var(--memos-btn-bg) !important;
+  border: none !important;
+  box-shadow: var(--memos-btn-shadow) !important;
   box-sizing: border-box;
 }
 .memos-editor-search-btn:hover,
@@ -5015,14 +4795,32 @@ body.theme-dark {
 .memos-editor-sidebar-btn:hover,
 .memos-editor-expand:hover,
 .memos-card-menu:hover,
+.memos-card-open-panel:hover,
 .memos-editor-select-btn:hover,
 .memos-batch-chip:hover,
 .memos-batch-more-btn:hover {
-  background-color: var(--memos-surface-hover) !important;
-  border-color: var(--memos-border-hover) !important;
+  background-color: var(--memos-btn-bg-hover) !important;
+  box-shadow: var(--memos-btn-shadow-hover) !important;
 }
+/* 发送键：强调色淡染 + 同一套悬浮投影，无边框 */
 .memos-editor-send {
-  border: 1px solid var(--memos-border) !important;
+  background-color: rgba(var(--memos-primary-rgb), 0.16) !important;
+  color: var(--memos-primary) !important;
+  border: none !important;
+  box-shadow: var(--memos-btn-shadow) !important;
+}
+.memos-editor-send:hover {
+  background-color: rgba(var(--memos-primary-rgb), 0.24) !important;
+  color: var(--memos-primary-hover) !important;
+  box-shadow: var(--memos-btn-shadow-hover) !important;
+}
+
+/* 卡片 ⋯ 下拉菜单：仍用近白磨砂面（属于浮层，不在此次按钮统一范围） */
+.memos-card-dropdown {
+  background-color: color-mix(in srgb, var(--memos-surface) 90%, transparent) !important;
+}
+.memos-card-dropdown-item:hover {
+  background: var(--memos-surface-hover);
 }
 
 /* ── Extended surface: dropdown / calendar / filter panel ─────
@@ -6004,47 +5802,22 @@ body .modal.memos-quick-capture-modal .modal-close-button svg {
    "Near-white button surfaces (final)" section (!important vs Obsidian's
    --interactive-normal repaint) — don't redeclare them here. */
 
-/* Phone/tablet: match the composer buttons' 36px touch sizing so the bar's
-   buttons don't read one size smaller than the input row. */
-body.is-mobile .memos-view .memos-batch-chip,
-body.is-tablet .memos-view .memos-batch-chip {
-  height: 36px !important;
-  min-height: 36px !important;
-  padding: 0 12px !important;
-}
+/* Phone/tablet: 批量操作栏按钮三端统一，走共享的 28px/14px 规则，
+   不再单独放大到 36px。 */
 
-body.is-mobile .memos-view .memos-batch-more-btn,
-body.is-tablet .memos-view .memos-batch-more-btn {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-}
-
-body.is-mobile .memos-view .memos-batch-chip-icon svg,
-body.is-mobile .memos-view .memos-batch-more-btn svg,
-body.is-tablet .memos-view .memos-batch-chip-icon svg,
-body.is-tablet .memos-view .memos-batch-more-btn svg {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
-}
-
-/* Desktop: the generic svg auto-size reset earlier in this file
+/* The generic svg auto-size reset earlier in this file
    (.workspace-leaf-content[data-type…] .memos-view svg → width/height:auto
    !important) outranks the plain-class batch rules above, so these glyphs
-   fell back to intrinsic sizing — the bare ⋯ svg painted visibly larger
-   than the chip icons beside it (chip icons are contained by their fixed
-   14px span; mobile/tablet dodge the reset via the block above).
-   Re-declare at higher specificity, scoped to DESKTOP ONLY so it never
-   fights the touch sizing above. */
-body:not(.is-mobile):not(.is-tablet)
+   fall back to intrinsic sizing — the bare ⋯ svg paints visibly larger than
+   the chip icons beside it. Re-declare at higher specificity, now for ALL
+   platforms (the old touch-only 18px override is gone — everything is 14px,
+   same as desktop). */
+body
   .workspace-leaf-content[data-type='memos-for-obsidian-view']
   .memos-view
   .memos-batch-chip-icon
   svg,
-body:not(.is-mobile):not(.is-tablet)
+body
   .workspace-leaf-content[data-type='memos-for-obsidian-view']
   .memos-view
   .memos-batch-more-btn
@@ -6055,7 +5828,7 @@ body:not(.is-mobile):not(.is-tablet)
   min-height: 14px !important;
   flex-shrink: 0 !important;
 }
-body:not(.is-mobile):not(.is-tablet)
+body
   .workspace-leaf-content[data-type='memos-for-obsidian-view']
   .memos-view
   .memos-batch-check.is-checked
@@ -6309,24 +6082,14 @@ body:not(.is-mobile):not(.is-tablet)
   padding-top: 1px;
 }
 
-/* ── Dark theme: strip the gray resting fill on icon/chip buttons ──
-   用户反馈：深色模式下按钮内部的灰色填充（--memos-surface 是"背景混白"
-   的灰块）很丑，全部去掉——静息态纯透明、无阴影，悬停才出现浅色反馈。
-   作用域仅 body.theme-dark：浅色模式下近白 chip 与背景几乎同色，维持原状
-   （浅色下去掉填充曾被反馈为"按钮默认色没变"，勿回退）。
-   :not(.is-active) 保护批量选中 chip 等激活态底色。 */
-body.theme-dark .memos-editor-send:not(.is-active),
-body.theme-dark .memos-editor-search-btn:not(.is-active),
-body.theme-dark .memos-editor-top-btn:not(.is-active),
-body.theme-dark .memos-editor-sidebar-btn:not(.is-active),
-body.theme-dark .memos-editor-expand:not(.is-active),
-body.theme-dark .memos-editor-select-btn:not(.is-active),
-body.theme-dark .memos-card-menu:not(.is-active),
-body.theme-dark .memos-card-open-panel:not(.is-active),
+/* ── Dark theme: strip the gray resting fill on OTHER icon/chip buttons ──
+   深色下去掉这些"非输入框/卡片"小图标按钮（卡片置顶钉、折叠、快速记录、
+   幽灵按钮）的灰底：静息透明、无阴影，悬停浅色反馈。
+   注意：输入框操作按钮 + 卡片 ⋯/浮窗 + 批量操作按钮**不在此列**——它们
+   统一走上方「悬浮按钮（final）」（淡底色 + 柔和投影，暗色下同样保留），
+   否则深色下会退化成光秃秃的图标。:not(.is-active) 保护激活态底色。 */
 body.theme-dark .memos-card-pin:not(.is-active),
 body.theme-dark .memos-card-toggle:not(.is-active),
-body.theme-dark .memos-batch-chip:not(.is-active),
-body.theme-dark .memos-batch-more-btn:not(.is-active),
 body.theme-dark .memos-quick-capture-send:not(.is-active),
 body.theme-dark .memos-quick-capture-drag:not(.is-active),
 body.theme-dark .memos-quick-capture-pin:not(.is-active),
@@ -6337,18 +6100,8 @@ body.theme-dark .memos-btn-ghost:not(.is-active) {
   background-color: transparent !important;
   box-shadow: none !important;
 }
-body.theme-dark .memos-editor-send:not(.is-active):hover,
-body.theme-dark .memos-editor-search-btn:not(.is-active):hover,
-body.theme-dark .memos-editor-top-btn:not(.is-active):hover,
-body.theme-dark .memos-editor-sidebar-btn:not(.is-active):hover,
-body.theme-dark .memos-editor-expand:not(.is-active):hover,
-body.theme-dark .memos-editor-select-btn:not(.is-active):hover,
-body.theme-dark .memos-card-menu:not(.is-active):hover,
-body.theme-dark .memos-card-open-panel:not(.is-active):hover,
 body.theme-dark .memos-card-pin:not(.is-active):hover,
 body.theme-dark .memos-card-toggle:not(.is-active):hover,
-body.theme-dark .memos-batch-chip:not(.is-active):hover,
-body.theme-dark .memos-batch-more-btn:not(.is-active):hover,
 body.theme-dark .memos-quick-capture-send:not(.is-active):hover,
 body.theme-dark .memos-quick-capture-drag:not(.is-active):hover,
 body.theme-dark .memos-quick-capture-pin:not(.is-active):hover,
@@ -6386,4 +6139,52 @@ body.theme-dark .memos-calendar-nav {
 }
 body.theme-dark .memos-calendar-nav:hover {
   background-color: var(--memos-surface-hover) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   按钮尺寸：按设备档位调整（桌面紧凑 / 触屏放大，唯一尺寸来源）
+   ─────────────────────────────────────────────────────────────
+   样式（无边框、淡底色 + 柔和投影的"悬浮按钮"）已在上方统一为同一套，
+   此处只集中管理「尺寸」。用 CSS 变量收口：
+     · 桌面（鼠标）：紧凑
+     · 手机 + 平板（触控）：放大一档，触控目标更舒适
+   注：卡片角标按钮的 JS 内联尺寸已移除，尺寸完全由本块决定。
+   ═══════════════════════════════════════════════════════════════ */
+.memos-view {
+  /* 桌面（鼠标）：紧凑 */
+  --memos-btn-editor: 28px; /* 搜索 / 回顶 / 侧边栏 / 展开 / 多选 / 发送 / 批量 ⋯ */
+  --memos-btn-card: 22px; /* 卡片右上角：⋯ 菜单 / 浮窗打开 */
+}
+/* 手机 + 平板（触控）：比桌面大一档。若想让平板再单独放大/缩小，
+   在此变量上另加 `body.is-tablet .memos-view` 覆盖即可。 */
+body.is-mobile .memos-view {
+  --memos-btn-editor: 36px;
+  --memos-btn-card: 32px;
+}
+
+.memos-view .memos-editor-search-btn,
+.memos-view .memos-editor-top-btn,
+.memos-view .memos-editor-sidebar-btn,
+.memos-view .memos-editor-expand,
+.memos-view .memos-editor-select-btn,
+.memos-view .memos-editor-send,
+.memos-view .memos-batch-more-btn {
+  width: var(--memos-btn-editor, 28px) !important;
+  height: var(--memos-btn-editor, 28px) !important;
+  min-width: var(--memos-btn-editor, 28px) !important;
+  min-height: var(--memos-btn-editor, 28px) !important;
+}
+
+/* 批量操作栏「全选 / 筛选器」是带文字标签的 chip：只统一高度，宽度随文字自适应 */
+.memos-view .memos-batch-chip {
+  height: var(--memos-btn-editor, 28px) !important;
+  min-height: var(--memos-btn-editor, 28px) !important;
+}
+
+.memos-view .memos-card-menu,
+.memos-view .memos-card-open-panel {
+  width: var(--memos-btn-card, 22px) !important;
+  height: var(--memos-btn-card, 22px) !important;
+  min-width: var(--memos-btn-card, 22px) !important;
+  min-height: var(--memos-btn-card, 22px) !important;
 }
