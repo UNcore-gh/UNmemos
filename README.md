@@ -142,6 +142,16 @@ The `@` syntax works everywhere in Obsidian — not just inside UNmemos views.
 |--------------------|--------------------|--------------------|--------------------|
 | ![Tablet Closed](images/tablet-closed.png) | ![Tablet Open](images/tablet-open.png) | ![Mobile Closed](images/mobile-closed.jpg) | ![Mobile Open](images/mobile-open.jpg) |
 
+## Changelog
+
+近期版本（完整提交记录见源码仓库）：
+
+| 版本 | 重点 |
+|------|------|
+| **0.5.147** | 编辑器临时文件不再散落库根：`memos-temp-editor-*.md` / `memos-inline-edit-pool.md` 统一收进插件存储目录并改名 `UNmemos-<N>.md`，不再污染文件列表、搜索与图谱；跟随存储目录设置动态落点，启动时只清理空的遗留临时文件，绝不动用户笔记。 |
+| **0.5.146** | 外观：图标按钮静息态去掉底色与描边，只保留图标，界面更干净，在不同主题下更克制。 |
+| **0.5.139** | 外观：侧栏与阅读区背景统一，深浅色主题下衔接更自然。 |
+
 ## License
 
 [Source Available License](LICENSE) — 商用需授权。
