@@ -4,9 +4,14 @@ on:
     release:
         types: [published]
     workflow_dispatch:
+        inputs:
+            tag:
+                description: 'Release tag to attest/clean (only for manual runs)'
+                required: true
+                type: string
 
 permissions:
-    contents: read
+    contents: write
     id-token: write
     attestations: write
 
@@ -15,6 +20,33 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
+
+            - name: Resolve release tag
+              id: tag
+              env:
+                  RELEASE_TAG: ${{ github.event.release.tag_name }}
+                  INPUT_TAG: ${{ inputs.tag }}
+              run: |
+                  tag="${RELEASE_TAG:-$INPUT_TAG}"
+                  if [ -z "$tag" ]; then
+                    echo "No release tag resolved" >&2
+                    exit 1
+                  fi
+                  echo "value=$tag" >> "$GITHUB_OUTPUT"
+
+            # Obsidian only downloads main.js / manifest.json / styles.css from a
+            # release. versions.json lives at the repo root for the custom-update
+            # check and must NOT be attached as a release asset; a previous manual
+            # publish uploaded it and the plugin review flagged it as an
+            # unsupported file. Remove it deterministically here so the published
+            # asset list is correct regardless of how the release was created.
+            - name: Remove unsupported versions.json asset
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh release delete-asset "${{ steps.tag.outputs.value }}" versions.json --yes \
+                    && echo "Removed versions.json asset" \
+                    || echo "No versions.json asset attached; nothing to remove"
 
             - name: Attest release assets
               uses: actions/attest@v4
