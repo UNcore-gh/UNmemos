@@ -1,91 +1,99 @@
 # UNmemos
 
-A faithful [Memos](https://github.com/usememos/memos)-inspired flash-capture plugin for Obsidian. Type a thought, hit send, and it lands on a beautiful timeline — everything stored locally as native Obsidian Canvas files.
+**Catch a passing thought in Obsidian and find it again in a searchable timeline.** UNmemos is a Memos-inspired flash-note plugin for people who want their quick notes to stay in their vault as ordinary Obsidian Canvas files.
 
-> Part of the **UN series** by UNcore.
+给 Obsidian 用户一个随手记下闪念的地方：写下内容后，它会出现在可搜索的时间线上，并以 Canvas 文件保存在自己的 Vault 里。
 
-## Features
+> Part of the UN series: **UNmemos** 记 · **UNreader** 读 · **UNagent** 用。
 
-- **Flash capture** — a composer at the top of the view; `Cmd/Ctrl+Shift+M` opens the view, `Cmd/Ctrl+Shift+N` focuses the composer. Drafts are auto-preserved.
-- **Timeline** — memos grouped by day in chronological order, with an activity heatmap.
-- **Tags** — `#tags` in memo text are extracted automatically; tag tree in the sidebar with pinning and drag-to-reorder.
-- **Star & archive** — star important memos; archived memos can be auto-deleted after a configurable retention period (off by default).
-- **Filters** — full-text / tag / date filtering with flomo-style saved filter shortcuts.
-- **Mentions** — type `@` in *any* editor (notes, live preview, canvas text nodes) to link to a memo; `@@name` quick-creates one. References get hover preview and backlink counting.
-- **Inline editing** — click a card to edit it in place; full Markdown support (`#tags`, `[[wikilinks]]`, `![[embeds]]`, code blocks…).
-- **Canvas-native storage** — memos live in `.canvas` files (default `UNmemos/{year}.canvas`), so they are first-class Obsidian citizens: open the canvas, drag cards around, everything stays in sync.
-- **flomo import** — a built-in guide (Settings → copy import guide) walks an AI assistant through migrating your flomo data.
-- **Bilingual & themeable** — 中文 / English UI; custom accent color; full mobile support.
+![UNmemos workflow illustration: capture a tagged thought, find it again by text, tag, or date, then manually link related notes in local Canvas files / UNmemos 工作流程示意：随手记录一条带标签的念头，之后用标签、全文或日期找回，再手动用 @ 引用关联到本地 Canvas 文件](assets/readme/capture-revisit-organize.svg)
 
-## Privacy
+*Capture a thought, find it later by text, tag, or date, and manually connect related notes with @ references. / 记下想法，按全文、标签或日期找回，再用 @ 引用手动关联。 Card text is synthetic; this is not an app screenshot. / 卡片内容为合成示例，并非插件界面截图。*
 
-UNmemos is fully offline. It makes **no network requests**, collects **no telemetry**, and only reads/writes the canvas files configured in its settings. The optional debug log is strictly opt-in and stays in memory until you export it yourself.
+## What you can do
 
-## Installation
+- Capture short notes and drafts, then browse them by day or activity.
+- Find notes with full-text, tag, and date filters; pin, star, or archive useful ones.
+- Write `#tags` and use `@` references to connect notes across Obsidian editors.
+- Save notes to `UNmemos/{year}.canvas` by default; change the storage path in Settings and open the files directly in Obsidian Canvas.
+- Use the Chinese or English interface, with layouts for desktop and narrow screens.
 
-### Community plugins (recommended)
+The Settings page includes a guide for asking an AI assistant to move flomo notes into UNmemos. It is a migration guide, not an automatic in-plugin importer.
 
-Search for **UNmemos** in Obsidian → **Settings → Community plugins → Browse**.
+### Interface examples / 界面示例
 
-### Manual
+![UNmemos desktop timeline / UNmemos 桌面端时间线](assets/readme/feed-desktop.jpg)
 
-Copy `main.js`, `manifest.json` and `styles.css` from the [latest release](../../releases) into `<vault>/.obsidian/plugins/unmemos/`, then enable the plugin.
+*Earlier desktop interface / 较早的桌面界面。 Names and layout may differ from the current release. / 名称和布局可能与当前版本不同。*
 
-## Documentation
+<p><img src="assets/readme/mobile-capture.jpg" width="220" alt="UNmemos phone-sized capture screen / UNmemos 手机窄屏快速记录界面"></p>
 
-- [`docs/flomo-import-guide.md`](docs/flomo-import-guide.md) — migrate your flomo notes into UNmemos storage.
-- [`docs/plugin-integration.md`](docs/plugin-integration.md) — interop spec for other plugins that want to read/write UNmemos data.
+*Earlier phone-sized interface / 较早的手机窄屏界面。 This existing screenshot is not a current-device compatibility test. / 此图是已有截图，不代表本次完成了真机兼容性测试。*
 
-## Recent changes
+## Get started
 
-- **0.5.147** — Graft (native-editor) temp files no longer litter the vault root. The old `memos-temp-editor-*.md` / `memos-inline-edit-pool.md` are now created inside the configured storage folder as `UNmemos-<N>.md`. The folder is resolved live (a provider registered from `main.ts`), so changing the storage folder in settings moves the next editor automatically; startup cleanup only removes **empty** leftover temp files and never touches user notes.
-- **0.5.146** — Icon-only buttons lose their resting background/border for a cleaner, more theme-neutral look.
-- **0.5.139** — Sidebar and reading-area backgrounds unified across light/dark themes.
+1. In Obsidian, open **Settings → Community plugins → Browse**, search for **UNmemos**, then install and enable it.
+2. Open the command palette with `Cmd/Ctrl+P`, search for **Open feed in new tab** (English) or **新标签页打开卡片流** (Chinese).
+3. Type a note in the top input box. Press `Enter` for a new line; press `Cmd/Ctrl+Enter` or the send button to save it.
 
-## Development
+If you prefer Enter-to-send, enable it in **Settings → UNmemos**; then use `Shift+Enter` for a new line.
 
-```bash
-npm install
-npm run dev     # esbuild watch mode
-npm run build   # tsc typecheck + production bundle
-npm run lint    # ESLint (obsidianmd rules)
-node scripts/release-sync.mjs patch   # build + bump + sync artifacts to ../UNmemos-github
-```
+You can also find **Quick capture / 快速记录** in the command palette. To use a keyboard shortcut, open **Settings → Hotkeys**, search for the command, and choose a key combination. UNmemos does not set a default open-view or quick-capture shortcut.
 
-Build outputs (`main.js`, `styles.css`) land at the plugin root; copy them into your vault's plugin folder and reload Obsidian to test.
+## Privacy and compatibility
+
+- Notes are stored in Canvas files inside your vault. UNmemos makes no network requests and collects no telemetry.
+- Optional diagnostic logs are off by default and stay in memory unless you choose to export them.
+- The published manifest requires Obsidian **1.7.2 or later** and declares support for desktop and mobile Obsidian (`isDesktopOnly: false`).
+
+## Latest version and changes
+
+[UNmemos 1.0.3](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.3) is the latest release. It adds safer Canvas writes and migration checks, an optional Enter-to-send setting, and collision-safe temporary editor files. The earlier theme integration keeps page surfaces aligned with Obsidian's active theme. Cursor spacing, theme contrast, and brief file-tree visibility reports still need reproduction in the affected Obsidian themes and devices; they are not claimed as fully resolved here.
+
+See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
 ## License
 
-Source Available License — 商用需授权。详见 [LICENSE](LICENSE)。
+[Source Available License](LICENSE) — commercial use requires a separate license.
 
 ---
 
 # 中文说明
 
-**UNmemos** 是一款受 Memos / flomo 启发的闪念速记插件。随手记下一条想法，它就出现在按天分组的时间线上——所有数据都以 Obsidian 原生 Canvas 文件保存在本地。
+**在 Obsidian 里随手记下闪念，再从可搜索的时间线里找回来。** UNmemos 是一款受 Memos 启发的速记插件，适合希望把临时想法直接保存在自己 Vault 中的 Obsidian 用户。记录以普通 Canvas 文件保存。
 
-## 功能一览
+## 可以用它做什么
 
-- **闪念速记**：顶部输入框随手记；`Cmd/Ctrl+Shift+M` 打开视图，`Cmd/Ctrl+Shift+N` 聚焦输入框；未发送的草稿自动保留。
-- **时间线**：按天分组的卡片流 + 活跃度热力图。
-- **标签**：正文中的 `#标签` 自动提取；侧边栏标签树，支持置顶、拖拽排序。
-- **星标与归档**：重要内容加星标；归档内容可设置保留天数后自动清理（默认不清理）。
-- **过滤器**：全文 / 标签 / 日期过滤，支持 flomo 风格的已保存过滤快捷方式。
-- **@ 提及**：在**任意编辑器**（笔记源码 / 实时预览 / 白板文本节点）输入 `@` 引用已有 memo，`@@名字` 快速新建；引用支持悬浮预览与反链计数。
-- **卡片内联编辑**：点击卡片即可修改，支持完整 Markdown。
-- **Canvas 原生存储**：memo 默认存放在 `UNmemos/{年份}.canvas`，可以直接用白板打开、拖拽，双向同步。
-- **flomo 导入**：设置页内置导入指南，配合 AI 助手一键迁移浮墨笔记数据。
-- **双语与主题**：中文 / English 界面；自定义主题色；完整适配移动端。
+- 快速记下想法和草稿，之后按日期或活跃度浏览。
+- 按全文、标签和日期查找记录，也可以置顶、星标或归档。
+- 在正文中写 `#标签`，并用 `@` 在 Obsidian 编辑器之间关联记录。
+- 记录默认保存在 `UNmemos/{年份}.canvas`；可以在设置中更改路径，也能直接用 Obsidian 白板打开。
+- 使用中文或英文界面；桌面和窄屏都有相应布局。
 
-## 隐私
+设置页提供一份迁移指南，可交给 AI 助手协助迁移 flomo 笔记。它不是插件内置的自动导入器。
 
-UNmemos 完全离线运行：**不联网、不收集任何遥测数据**，只读写你自己配置的 canvas 文件。可选的调试日志默认关闭，且仅保存在内存中，由你主动导出。
+## 开始使用
 
-## 开发
+1. 在 Obsidian 打开 **设置 → 社区插件 → 浏览**，搜索 **UNmemos**，安装并启用。
+2. 按 `Cmd/Ctrl+P` 打开命令面板，搜索 **新标签页打开卡片流**（中文界面）或 **Open feed in new tab**（英文界面）。
+3. 在顶部输入框写下内容。按 `Enter` 换行；按 `Cmd/Ctrl+Enter` 或点击发送按钮保存。
 
-```bash
-npm install
-npm run dev     # esbuild 监听模式
-npm run build   # tsc 类型检查 + 生产构建
-npm run lint    # ESLint（obsidianmd 规则）
-```
+如果更习惯按回车发送，可以在 **设置 → UNmemos** 中开启；开启后按 `Shift+Enter` 换行。
+
+也可以在命令面板搜索 **快速记录 / Quick capture**。如果想用键盘快捷键，打开 **设置 → 快捷键**，搜索对应命令并自行绑定。UNmemos 不预设打开卡片流或快速记录的快捷键。
+
+## 隐私与兼容性
+
+- 记录保存在 Vault 内的 Canvas 文件中。UNmemos 不发起网络请求，也不收集遥测数据。
+- 可选诊断日志默认关闭；只有你主动导出时才会离开内存。
+- 当前公开版的清单要求 Obsidian **1.7.2 或更新版本**，并声明支持 Obsidian 桌面端和移动端（`isDesktopOnly: false`）。
+
+## 最新版本与更新说明
+
+[UNmemos 1.0.3](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.3) 是目前最新版本。此版本加强 Canvas 写入和迁移时的防覆盖保护，新增可选的 Enter 发送设置，并避免临时编辑文件与已有文件重名。此前的主题适配也会继续让页面跟随 Obsidian 当前主题。光标位置、主题文字对比度和文件树短暂显示仍需在反馈对应的 Obsidian 主题和设备中复现，本说明不宣称这些问题已全部解决。
+
+已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
+
+## 许可证
+
+[Source Available License](LICENSE) —— 商业使用需另行授权。

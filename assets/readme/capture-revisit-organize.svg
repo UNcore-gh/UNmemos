@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="1080" viewBox="0 0 640 1080" role="img" aria-labelledby="title desc">
+  <title id="title">UNmemos: capture, revisit, organize</title>
+  <desc id="desc">A three-step illustration shows a synthetic tagged note, finding notes again with filters and dates, then manually connecting related notes with references in local Canvas files.</desc>
+
+  <rect width="640" height="1080" rx="28" fill="#F5F6F3" />
+
+  <text x="48" y="70" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="42" font-weight="700">从闪念到回看</text>
+  <text x="48" y="110" fill="#58706A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="28">记一条 · 找回来 · 建立自己的关联</text>
+
+  <g id="capture-step">
+    <rect x="40" y="148" width="560" height="250" rx="22" fill="#FFFFFF" stroke="#C5D4CF" stroke-width="2" />
+    <circle cx="82" cy="199" r="24" fill="#2F766D" />
+    <text x="82" y="207" text-anchor="middle" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="22" font-weight="700">01</text>
+    <text x="122" y="207" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="38" font-weight="700">记下 / Capture</text>
+    <rect x="72" y="230" width="496" height="132" rx="16" fill="#F5F6F3" stroke="#C5D4CF" stroke-width="2" />
+    <text x="96" y="272" fill="#58706A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26">一条新的想法</text>
+    <text x="96" y="310" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="31">灵感：下次试试先写出问题</text>
+    <rect x="92" y="326" width="102" height="30" rx="15" fill="#DDEBE6" />
+    <text x="143" y="348" text-anchor="middle" fill="#1F2D2A" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="24">#灵感</text>
+  </g>
+
+  <path d="M320 400 V427" fill="none" stroke="#2F766D" stroke-width="4" stroke-linecap="round" />
+  <path d="M310 417 L320 429 L330 417" fill="none" stroke="#2F766D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+  <g id="revisit-step">
+    <rect x="40" y="438" width="560" height="278" rx="22" fill="#FFFFFF" stroke="#C5D4CF" stroke-width="2" />
+    <circle cx="82" cy="489" r="24" fill="#2F766D" />
+    <text x="82" y="497" text-anchor="middle" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="22" font-weight="700">02</text>
+    <text x="122" y="497" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="38" font-weight="700">找回 / Revisit</text>
+    <rect x="72" y="520" width="496" height="46" rx="14" fill="#DDEBE6" />
+    <text x="94" y="551" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="27">筛选：#灵感　·　全文　·　日期</text>
+    <rect x="72" y="582" width="496" height="48" rx="12" fill="#FFFFFF" stroke="#C5D4CF" stroke-width="2" />
+    <text x="94" y="613" fill="#58706A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="24">今天</text>
+    <text x="164" y="613" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26">灵感：下次试试先写出问题</text>
+    <rect x="72" y="642" width="496" height="48" rx="12" fill="#FFFFFF" stroke="#C5D4CF" stroke-width="2" />
+    <text x="94" y="673" fill="#58706A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="24">昨天</text>
+    <text x="164" y="673" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26">灵感：再补充一个例子</text>
+  </g>
+
+  <path d="M320 718 V745" fill="none" stroke="#2F766D" stroke-width="4" stroke-linecap="round" />
+  <path d="M310 735 L320 747 L330 735" fill="none" stroke="#2F766D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+  <g id="organize-step">
+    <rect x="40" y="756" width="560" height="278" rx="22" fill="#FFFFFF" stroke="#C5D4CF" stroke-width="2" />
+    <circle cx="82" cy="807" r="24" fill="#2F766D" />
+    <text x="82" y="815" text-anchor="middle" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="22" font-weight="700">03</text>
+    <text x="122" y="815" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="38" font-weight="700">整理 / Connect</text>
+    <text x="72" y="855" fill="#58706A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26">用标签归类，按需要用 @ 引用关联</text>
+    <path d="M190 918 C250 918 270 950 320 950 C370 950 392 918 450 918" fill="none" stroke="#2F766D" stroke-width="3" />
+    <path d="M320 950 V982" fill="none" stroke="#2F766D" stroke-width="3" />
+    <rect x="82" y="884" width="216" height="70" rx="14" fill="#F5F6F3" stroke="#C5D4CF" stroke-width="2" />
+    <text x="104" y="916" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="25">灵感卡片</text>
+    <text x="104" y="942" fill="#2F766D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="23">#灵感</text>
+    <rect x="342" y="884" width="216" height="70" rx="14" fill="#F5F6F3" stroke="#C5D4CF" stroke-width="2" />
+    <text x="364" y="916" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="25">相关记录</text>
+    <text x="364" y="942" fill="#2F766D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="23">@灵感</text>
+    <rect x="212" y="974" width="216" height="44" rx="14" fill="#DDEBE6" />
+    <text x="320" y="1003" text-anchor="middle" fill="#1F2D2A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="23">本地 Canvas 文件</text>
+  </g>
+
+  <text x="48" y="1064" fill="#58706A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="22">工作流程示意 · 卡片内容为合成示例</text>
+</svg>
