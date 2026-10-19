@@ -48,7 +48,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.3](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.3) is the latest release. It adds safer Canvas writes and migration checks, an optional Enter-to-send setting, and collision-safe temporary editor files. The earlier theme integration keeps page surfaces aligned with Obsidian's active theme. Cursor spacing, theme contrast, and brief file-tree visibility reports still need reproduction in the affected Obsidian themes and devices; they are not claimed as fully resolved here.
+[UNmemos 1.0.4](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.4) is the latest release. Star and pin actions read the latest Canvas content before changing a flag, keeping repeated taps independent and preventing old cards from overwriting newer text. Card menus now use a clean text-only style, and resize handles are easier to see. Version 1.0.3 added safer Canvas writes and migration checks, an optional Enter-to-send setting, and collision-safe temporary editor files. Cursor spacing, theme contrast, and brief file-tree visibility reports still need reproduction in the affected Obsidian themes and devices; they are not claimed as fully resolved here.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -90,7 +90,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.3](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.3) 是目前最新版本。此版本加强 Canvas 写入和迁移时的防覆盖保护，新增可选的 Enter 发送设置，并避免临时编辑文件与已有文件重名。此前的主题适配也会继续让页面跟随 Obsidian 当前主题。光标位置、主题文字对比度和文件树短暂显示仍需在反馈对应的 Obsidian 主题和设备中复现，本说明不宣称这些问题已全部解决。
+[UNmemos 1.0.4](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.4) 是目前最新版本。星标和置顶会先读取 Canvas 最新内容再切换标记，连续操作时两个标记保持独立，旧卡片也不会覆盖新正文。卡片菜单改为纯文字样式，缩放手柄也更容易发现。1.0.3 加强了 Canvas 写入与迁移防覆盖保护，增加可选的 Enter 发送，并避免临时编辑文件与已有文件重名。光标位置、主题文字对比度和文件树短暂显示仍需在反馈对应的 Obsidian 主题和设备中复现，本说明不宣称这些问题已全部解决。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
