@@ -48,7 +48,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.7](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.7) is the latest release. The desktop composer keeps a 2px gap below the native view header, with extra top spacing removed from the content container. Phone and tablet layout rules are unchanged. Star and pin actions read the latest Canvas content before changing a flag, keeping repeated taps independent and preventing old cards from overwriting newer text. Card menus now use a clean text-only style, and resize handles are easier to see. Version 1.0.3 added safer Canvas writes and migration checks, an optional Enter-to-send setting, and collision-safe temporary editor files. Cursor spacing, theme contrast, and brief file-tree visibility reports still need reproduction in the affected Obsidian themes and devices; they are not claimed as fully resolved here.
+[UNmemos 1.0.10](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.10) adds an independent native navigation sidebar, calendar and recent heatmap, attachments in all three editing entry points, image thumbnails and enlarged previews, and individual memo-link previews in ordinary notes. Saving an edit returns to its card. Task toggles and external writes refresh cards, with improved mobile editor and floating-panel bounds.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -90,7 +90,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.7](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.7) 是目前最新版本。桌面输入框与原生页首之间保留 2px 间距，清除外层内容区顶部的额外间距。手机和平板的布局规则保持原样。星标和置顶会先读取 Canvas 最新内容再切换标记，连续操作时两个标记保持独立，旧卡片也不会覆盖新正文。卡片菜单改为纯文字样式，缩放手柄也更容易发现。1.0.3 加强了 Canvas 写入与迁移防覆盖保护，增加可选的 Enter 发送，并避免临时编辑文件与已有文件重名。光标位置、主题文字对比度和文件树短暂显示仍需在反馈对应的 Obsidian 主题和设备中复现，本说明不宣称这些问题已全部解决。
+[UNmemos 1.0.10](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.10) 新增独立原生导航侧栏、月历与近期热力图、三个编辑入口的附件选择、图片缩略图与放大预览，以及普通笔记中的单条卡片链接预览。编辑保存后会定位到对应卡片；已有卡片的任务勾选和外部写入可即时刷新，并改善手机输入框、浮窗按钮和缩放范围。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
