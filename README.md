@@ -48,7 +48,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.10](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.10) adds an independent native navigation sidebar, calendar and recent heatmap, attachments in all three editing entry points, image thumbnails and enlarged previews, and individual memo-link previews in ordinary notes. Saving an edit returns to its card. Task toggles and external writes refresh cards, with improved mobile editor and floating-panel bounds.
+[UNmemos 1.0.11](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.11) keeps a consistent 8px inset around the feed in both desktop sidebars, separating cards and the composer from the pane edges even when the sidebar is widened. Main-pane, phone, and tablet layouts keep their existing spacing.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -90,7 +90,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.10](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.10) 新增独立原生导航侧栏、月历与近期热力图、三个编辑入口的附件选择、图片缩略图与放大预览，以及普通笔记中的单条卡片链接预览。编辑保存后会定位到对应卡片；已有卡片的任务勾选和外部写入可即时刷新，并改善手机输入框、浮窗按钮和缩放范围。
+[UNmemos 1.0.11](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.11) 将桌面左右侧边栏中的卡片流四周留白统一为 8 像素，让卡片和输入框与侧边栏边框保持距离，拉宽侧边栏后仍会保留。中间主窗口、手机和平板继续沿用现有间距。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
