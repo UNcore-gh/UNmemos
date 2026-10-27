@@ -48,7 +48,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.11](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.11) keeps a consistent 8px inset around the feed in both desktop sidebars, separating cards and the composer from the pane edges even when the sidebar is widened. Main-pane, phone, and tablet layouts keep their existing spacing.
+[UNmemos 1.0.12](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.12) improves locating a memo in its source Canvas and fixes edit panels opening with a blank buffer. Empty legacy edit drafts are cleared automatically; non-empty drafts take priority when restoring the editor.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -90,7 +90,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.11](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.11) 将桌面左右侧边栏中的卡片流四周留白统一为 8 像素，让卡片和输入框与侧边栏边框保持距离，拉宽侧边栏后仍会保留。中间主窗口、手机和平板继续沿用现有间距。
+[UNmemos 1.0.12](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.12) 改善白板中的卡片定位，并修复编辑面板偶尔打开为空白的问题。升级后会自动清理历史空草稿；恢复编辑内容时优先保留已有的非空草稿。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
