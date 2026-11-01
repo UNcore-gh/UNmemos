@@ -48,7 +48,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.12](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.12) improves locating a memo in its source Canvas and fixes edit panels opening with a blank buffer. Empty legacy edit drafts are cleared automatically; non-empty drafts take priority when restoring the editor.
+[UNmemos 1.0.13](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.13) adds random review of up to 10 memos from the current filtered results, inline embeds for individual Canvas memos, and more reliable navigation to referenced cards during random review.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -90,7 +90,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.12](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.12) 改善白板中的卡片定位，并修复编辑面板偶尔打开为空白的问题。升级后会自动清理历史空草稿；恢复编辑内容时优先保留已有的非空草稿。
+[UNmemos 1.0.13](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.13) 新增随机回顾（从当前筛选结果中随机抽看最多 10 条）、在笔记中嵌入单条 Canvas 卡片，并改善随机回顾时对引用卡片的定位。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
