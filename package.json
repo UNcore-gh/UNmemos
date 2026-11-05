@@ -1,0 +1,12 @@
+{
+  "name": "unmemos-sidebar-transit",
+  "private": true,
+  "scripts": {
+    "test": "node --test --experimental-test-isolation=none tests/*.test.cjs",
+    "check": "node --check main.js && npm test"
+  },
+  "devDependencies": {
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.38.0"
+  }
+}
