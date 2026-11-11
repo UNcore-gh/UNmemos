@@ -48,7 +48,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.13](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.13) adds random review of up to 10 memos from the current filtered results, inline embeds for individual Canvas memos, and more reliable navigation to referenced cards during random review.
+[UNmemos 1.0.16](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.16) adds card dragging into notes, Command/Ctrl-drag to insert memo text, and card-styled memo embeds.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -90,7 +90,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.13](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.13) 新增随机回顾（从当前筛选结果中随机抽看最多 10 条）、在笔记中嵌入单条 Canvas 卡片，并改善随机回顾时对引用卡片的定位。
+[UNmemos 1.0.16](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.16) 新增拖动卡片到笔记、Command/Ctrl 拖动插入正文，并让嵌入保留卡片外观。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
