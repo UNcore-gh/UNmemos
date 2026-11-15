@@ -50,7 +50,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-**UNmemos 1.0.18 now connects to a WeChat ClawBot bot for quick capture:** send text, images, or files in chat and save them as Obsidian cards. The optional desktop connection can work alone or route messages with UNagent. This release also adds safer edits that reject stale writes and consistent save shortcuts across writing surfaces.
+**UNmemos 1.0.19 adds an invitation-gated relationship board:** inspect memo references in the Memos view, annotate graph edges, use nested saved filters, and finally share one save shortcut across every writing surface. Invitation codes are verified offline and the beta stays disabled by default. This version also keeps full-screen mobile editors above the keyboard and native quick-edit toolbar.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -94,7 +94,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-**UNmemos 1.0.18 现在可以连接微信 ClawBot 机器人进行速记：** 直接在微信聊天里发送文字、图片或文件，就会保存成 Obsidian 卡片。桌面端的可选连接可以单独使用，也可以与 UNagent 分流。本版还加入拒绝覆盖外部改动的安全保存，并统一各写入界面的保存快捷键。
+**UNmemos 1.0.19 新增凭邀请码开启的关系白板：** 在 Memos 界面查看卡片引用关系、给连线添加批注、使用多层嵌套筛选，并让所有写入界面共用同一套保存快捷键。邀请码离线验证，内测功能默认关闭。本版也修复手机全屏输入区被软键盘和 Obsidian 快速编辑栏遮挡的问题。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
