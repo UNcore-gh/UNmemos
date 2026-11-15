@@ -15,6 +15,7 @@
 - Capture short notes and drafts, then browse them by day or activity.
 - Find notes with full-text, tag, and date filters; pin, star, or archive useful ones.
 - Write `#tags` and use `@` references to connect notes across Obsidian editors.
+- Connect a desktop WeChat **ClawBot** bot and send text, images, or files to UNmemos for instant capture.
 - Save notes to `UNmemos/{year}.canvas` by default; change the storage path in Settings and open the files directly in Obsidian Canvas.
 - Use the Chinese or English interface, with layouts for desktop and narrow screens.
 
@@ -49,7 +50,7 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Latest version and changes
 
-[UNmemos 1.0.18](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.18) adds optional desktop WeChat capture with UNmemos/UNagent routing, safer edits that reject stale writes, and a consistent save shortcut across writing surfaces.
+**UNmemos 1.0.18 now connects to a WeChat ClawBot bot for quick capture:** send text, images, or files in chat and save them as Obsidian cards. The optional desktop connection can work alone or route messages with UNagent. This release also adds safer edits that reject stale writes and consistent save shortcuts across writing surfaces.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -68,6 +69,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 - 快速记下想法和草稿，之后按日期或活跃度浏览。
 - 按全文、标签和日期查找记录，也可以置顶、星标或归档。
 - 在正文中写 `#标签`，并用 `@` 在 Obsidian 编辑器之间关联记录。
+- 在桌面端连接微信 **ClawBot** 机器人，直接发送文字、图片或文件进行速记。
 - 记录默认保存在 `UNmemos/{年份}.canvas`；可以在设置中更改路径，也能直接用 Obsidian 白板打开。
 - 使用中文或英文界面；桌面和窄屏都有相应布局。
 
@@ -92,7 +94,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.18](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.18) 新增可选的桌面微信闪念与 UNagent 分流，编辑保存时拒绝覆盖外部改动，并统一各写入界面的保存快捷键。
+**UNmemos 1.0.18 现在可以连接微信 ClawBot 机器人进行速记：** 直接在微信聊天里发送文字、图片或文件，就会保存成 Obsidian 卡片。桌面端的可选连接可以单独使用，也可以与 UNagent 分流。本版还加入拒绝覆盖外部改动的安全保存，并统一各写入界面的保存快捷键。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
