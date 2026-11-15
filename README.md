@@ -42,13 +42,14 @@ You can also find **Quick capture / 快速记录** in the command palette. To us
 
 ## Privacy and compatibility
 
-- Notes are stored in Canvas files inside your vault. UNmemos makes no network requests and collects no telemetry.
+- Notes are stored in Canvas files inside your vault. UNmemos collects no telemetry. The optional desktop WeChat capture feature is disabled by default; when enabled, it connects to Tencent's WeChat service to receive messages and attachments and send save confirmations. Credentials and pending messages are stored in local plugin settings and may be included in vault sync or backups.
+- WeChat's offline retention period is not documented. A confirmation means the card was saved locally; delivery of the confirmation is not guaranteed. Attachments are limited to 25 MB each.
 - Optional diagnostic logs are off by default and stay in memory unless you choose to export them.
 - The published manifest requires Obsidian **1.7.2 or later** and declares support for desktop and mobile Obsidian (`isDesktopOnly: false`).
 
 ## Latest version and changes
 
-[UNmemos 1.0.16](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.16) adds card dragging into notes, Command/Ctrl-drag to insert memo text, and card-styled memo embeds.
+[UNmemos 1.0.18](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.18) adds optional desktop WeChat capture with UNmemos/UNagent routing, safer edits that reject stale writes, and a consistent save shortcut across writing surfaces.
 
 See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the published changes and update files. Local work that has not been released is not listed here.
 
@@ -84,13 +85,14 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 
 ## 隐私与兼容性
 
-- 记录保存在 Vault 内的 Canvas 文件中。UNmemos 不发起网络请求，也不收集遥测数据。
+- 记录保存在 Vault 内的 Canvas 文件中，UNmemos 不收集遥测数据。桌面端可选的微信闪念默认关闭；启用后会连接腾讯微信服务，接收消息和附件并发送保存确认。连接凭证和待处理消息保存在本地插件设置中，可能随库同步或备份。
+- 微信未公开离线消息保留时长。确认信息表示卡片已保存到本地，但确认消息本身不保证送达；单个附件上限为 25 MB。
 - 可选诊断日志默认关闭；只有你主动导出时才会离开内存。
 - 当前公开版的清单要求 Obsidian **1.7.2 或更新版本**，并声明支持 Obsidian 桌面端和移动端（`isDesktopOnly: false`）。
 
 ## 最新版本与更新说明
 
-[UNmemos 1.0.16](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.16) 新增拖动卡片到笔记、Command/Ctrl 拖动插入正文，并让嵌入保留卡片外观。
+[UNmemos 1.0.18](https://github.com/UNcore-gh/UNmemos/releases/tag/1.0.18) 新增可选的桌面微信闪念与 UNagent 分流，编辑保存时拒绝覆盖外部改动，并统一各写入界面的保存快捷键。
 
 已发布的变更和更新文件见 [GitHub Releases 更新记录](https://github.com/UNcore-gh/UNmemos/releases)。尚未发布的本地改动不列在这里。
 
