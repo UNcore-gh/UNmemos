@@ -70,6 +70,7 @@ See the [release history](https://github.com/UNcore-gh/UNmemos/releases) for the
 - 按全文、标签和日期查找记录，也可以置顶、星标或归档。
 - 在正文中写 `#标签`，并用 `@` 在 Obsidian 编辑器之间关联记录。
 - 在桌面端连接微信 **ClawBot** 机器人，直接发送文字、图片或文件进行速记。
+- 聚合模式下，更新 UNmemos 和 UNagent 后，可以在同一微信聊天中发送 `/发文件 文件名`，取回 UNagent 找到的库内原文件。
 - 记录默认保存在 `UNmemos/{年份}.canvas`；可以在设置中更改路径，也能直接用 Obsidian 白板打开。
 - 使用中文或英文界面；桌面和窄屏都有相应布局。
 
